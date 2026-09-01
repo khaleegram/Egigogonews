@@ -1,11 +1,13 @@
 import { emailConfigured } from "@/lib/email";
 import { pushConfigured } from "@/lib/push";
 import { r2Configured } from "@/lib/r2";
+import { requireCmsPage } from "@/lib/cms-auth";
 import { getSiteSettings, saveSiteSettings } from "@/lib/settings-actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
+  await requireCmsPage(["admin"]);
   const { settings, configured } = await getSiteSettings();
 
   async function saveAction(formData: FormData) {

@@ -1,21 +1,27 @@
 import { notFound } from "next/navigation";
 import { ArticleEditorForm } from "@/components/cms/article-editor-form";
 import { getArticleForCms } from "@/lib/articles";
+import { requireCmsPage } from "@/lib/cms-auth";
 
 type Props = { params: Promise<{ id: string }> };
 
 export default async function EditArticlePage({ params }: Props) {
+  const staff = await requireCmsPage();
   const { id } = await params;
   const row = await getArticleForCms(id);
   if (!row) notFound();
 
   const { article, category } = row;
+  if (staff.role === "reporter" && article.authorId !== staff.id) {
+    notFound();
+  }
 
   return (
     <>
       <h1>Edit article</h1>
       <ArticleEditorForm
         mode="edit"
+        role={staff.role}
         initial={{
           id: article.id,
           status: article.status,

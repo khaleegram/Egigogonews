@@ -126,6 +126,8 @@ export async function saveArticleDraft(
   const categoryId = await categoryIdForSlug(data.categorySlug);
   if (!categoryId) return { ok: false, error: "Unknown category" };
 
+  const canFeature = staff.role === "admin" || staff.role === "editor";
+
   const db = getDb();
   const values = {
     type: data.type,
@@ -140,8 +142,8 @@ export async function saveArticleDraft(
     heroImageUrl: data.heroImageUrl || null,
     heroImageAlt: data.heroImageUrl ? data.title : null,
     audioUrl: data.audioUrl || null,
-    featured: data.featured ?? false,
-    sponsored: data.sponsored ?? false,
+    featured: canFeature ? (data.featured ?? false) : undefined,
+    sponsored: canFeature ? (data.sponsored ?? false) : undefined,
     seoTitle: data.seoTitle || null,
     seoDescription: data.seoDescription || null,
     updatedAt: new Date(),
@@ -162,10 +164,14 @@ export async function saveArticleDraft(
         return { ok: false, error: "Reporters cannot edit published articles" };
       }
 
+      const { featured, sponsored, ...rest } = values;
       await db
         .update(articles)
         .set({
-          ...values,
+          ...rest,
+          ...(canFeature
+            ? { featured: featured ?? false, sponsored: sponsored ?? false }
+            : {}),
           status:
             existing.status === "published" || existing.status === "scheduled"
               ? existing.status
@@ -183,6 +189,8 @@ export async function saveArticleDraft(
       .insert(articles)
       .values({
         ...values,
+        featured: canFeature ? (data.featured ?? false) : false,
+        sponsored: canFeature ? (data.sponsored ?? false) : false,
         authorId: staff.id,
         status: "draft",
       })

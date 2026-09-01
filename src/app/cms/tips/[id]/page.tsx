@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TipStatusForm } from "@/components/cms/tip-status-form";
+import { requireCmsPage } from "@/lib/cms-auth";
 import { getTip } from "@/lib/tip-actions";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +11,7 @@ export default async function TipDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireCmsPage(["admin", "editor"]);
   const { id } = await params;
   const tip = await getTip(id);
   if (!tip) notFound();

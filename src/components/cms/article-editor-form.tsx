@@ -68,10 +68,13 @@ function slugify(title: string) {
 export function ArticleEditorForm({
   initial,
   mode,
+  role = "reporter",
 }: {
   initial?: Partial<ArticleEditorValues>;
   mode: "new" | "edit";
+  role?: "admin" | "editor" | "reporter";
 }) {
+  const canPublish = role === "admin" || role === "editor";
   const router = useRouter();
   const start = useMemo(() => ({ ...empty, ...initial }), [initial]);
   const [values, setValues] = useState(start);
@@ -382,9 +385,6 @@ export function ArticleEditorForm({
                   </button>
                 ) : null}
               </div>
-              <p className="article-editor__hint">
-                Alt text is set automatically from the article title.
-              </p>
             </div>
 
             <label>
@@ -423,23 +423,27 @@ export function ArticleEditorForm({
               </div>
             </div>
 
-            <label className="article-editor__check">
-              <input
-                type="checkbox"
-                checked={values.featured}
-                onChange={(e) => set("featured", e.target.checked)}
-              />
-              Featured on home
-            </label>
+            {canPublish ? (
+              <>
+                <label className="article-editor__check">
+                  <input
+                    type="checkbox"
+                    checked={values.featured}
+                    onChange={(e) => set("featured", e.target.checked)}
+                  />
+                  Featured on home
+                </label>
 
-            <label className="article-editor__check">
-              <input
-                type="checkbox"
-                checked={values.sponsored}
-                onChange={(e) => set("sponsored", e.target.checked)}
-              />
-              Sponsored
-            </label>
+                <label className="article-editor__check">
+                  <input
+                    type="checkbox"
+                    checked={values.sponsored}
+                    onChange={(e) => set("sponsored", e.target.checked)}
+                  />
+                  Sponsored
+                </label>
+              </>
+            ) : null}
 
             <label>
               SEO title
@@ -475,21 +479,23 @@ export function ArticleEditorForm({
               ) : null}
               {mode === "edit" ? (
                 <>
-                  <button
-                    type="button"
-                    className="btn"
-                    disabled={pending || !values.id}
-                    onClick={onPublish}
-                  >
-                    Publish now
-                  </button>
+                  {canPublish ? (
+                    <button
+                      type="button"
+                      className="btn"
+                      disabled={pending || !values.id}
+                      onClick={onPublish}
+                    >
+                      Publish now
+                    </button>
+                  ) : null}
                   <Link
                     href={`/cms/articles/${values.id}/preview`}
                     className="btn btn--ghost"
                   >
                     Preview
                   </Link>
-                  {values.status === "published" ? (
+                  {canPublish && values.status === "published" ? (
                     <button
                       type="button"
                       className="btn btn--ghost"
@@ -503,7 +509,7 @@ export function ArticleEditorForm({
               ) : null}
             </div>
 
-            {mode === "edit" && values.id ? (
+            {mode === "edit" && values.id && canPublish ? (
               <div className="article-editor__workflow">
                 <label>
                   Schedule publish

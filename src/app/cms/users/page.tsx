@@ -4,13 +4,13 @@ import {
   setUserActive,
   setUserRole,
 } from "@/lib/user-actions";
-import { getStaff } from "@/lib/cms-auth";
+import { requireCmsPage } from "@/lib/cms-auth";
 import { formatPublishedLabel } from "@/lib/story";
 
 export const dynamic = "force-dynamic";
 
 export default async function UsersPage() {
-  const staff = await getStaff();
+  const staff = await requireCmsPage(["admin"]);
   const users = await listUsers();
 
   async function createAction(formData: FormData) {

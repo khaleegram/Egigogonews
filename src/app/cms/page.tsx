@@ -29,7 +29,11 @@ export default async function CmsDashboardPage() {
   const [inReview] = await db
     .select({ n: count() })
     .from(articles)
-    .where(eq(articles.status, "in_review"));
+    .where(
+      authorFilter
+        ? and(eq(articles.status, "in_review"), authorFilter)
+        : eq(articles.status, "in_review"),
+    );
 
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);

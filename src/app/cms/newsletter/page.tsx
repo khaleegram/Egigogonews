@@ -1,5 +1,6 @@
 import { NewsletterComposeForm } from "@/components/cms/newsletter-compose-form";
 import { emailConfigured } from "@/lib/email";
+import { requireCmsPage } from "@/lib/cms-auth";
 import {
   getNewsletterStats,
   listNewsletterPickArticles,
@@ -9,6 +10,7 @@ import { formatPublishedLabel } from "@/lib/story";
 export const dynamic = "force-dynamic";
 
 export default async function NewsletterPage() {
+  await requireCmsPage(["admin"]);
   const stats = await getNewsletterStats();
   const articles = await listNewsletterPickArticles();
 

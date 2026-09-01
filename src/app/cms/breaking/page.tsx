@@ -1,9 +1,11 @@
 import { getBreaking } from "@/lib/breaking-actions";
 import { BreakingForm } from "@/components/cms/breaking-form";
+import { requireCmsPage } from "@/lib/cms-auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function BreakingPage() {
+  await requireCmsPage(["admin", "editor"]);
   const row = await getBreaking();
   return (
     <>

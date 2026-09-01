@@ -64,9 +64,6 @@ export async function uploadMediaAction(
     if (file.size > IMAGE_MAX) {
       return { ok: false, error: "Images must be 8MB or smaller." };
     }
-    if (!altRaw) {
-      return { ok: false, error: "Alt text is required for images." };
-    }
   } else if (AUDIO_TYPES.has(type) || /\.(mp3|m4a)$/i.test(file.name)) {
     kind = "audio";
     if (file.size > AUDIO_MAX) {
@@ -78,6 +75,16 @@ export async function uploadMediaAction(
       error: "Allowed: JPEG, PNG, WebP (images) or MP3/M4A (audio).",
     };
   }
+
+  const autoAlt =
+    altRaw ||
+    file.name
+      .replace(/\.[^.]+$/, "")
+      .replace(/[-_]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 200) ||
+    "Image";
 
   const bytes = Buffer.from(await file.arrayBuffer());
   const safe = sanitizeFilename(file.name) || (kind === "image" ? "image.jpg" : "audio.mp3");
@@ -97,7 +104,7 @@ export async function uploadMediaAction(
         url,
         kind,
         filename: file.name.slice(0, 500),
-        alt: kind === "image" ? altRaw : null,
+        alt: kind === "image" ? autoAlt : null,
         uploadedBy: userId,
       })
       .returning();

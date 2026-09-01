@@ -1,9 +1,11 @@
 import { AdSlotForm } from "@/components/cms/ad-slot-form";
 import { listAdSlots } from "@/lib/ad-actions";
+import { requireCmsPage } from "@/lib/cms-auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdsPage() {
+  await requireCmsPage(["admin"]);
   const slots = await listAdSlots();
   return (
     <>

@@ -20,7 +20,7 @@ export function MediaUploadForm({
   compact = false,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [alt, setAlt] = useState("");
+  const [fileName, setFileName] = useState("");
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
 
@@ -40,7 +40,6 @@ export function MediaUploadForm({
     }
     const fd = new FormData();
     fd.set("file", file);
-    fd.set("alt", alt);
     startTransition(async () => {
       const result = await uploadMediaAction(fd);
       if (!result.ok) {
@@ -48,31 +47,43 @@ export function MediaUploadForm({
         return;
       }
       setError("");
-      setAlt("");
+      setFileName("");
       if (inputRef.current) inputRef.current.value = "";
       onUploaded?.(result);
     });
   }
 
   return (
-    <form className={compact ? "media-upload media-upload--compact" : "media-upload"} onSubmit={onSubmit}>
-      <label>
-        File
-        <input ref={inputRef} type="file" accept={accept} required />
-      </label>
-      {kind !== "audio" ? (
-        <label>
-          Alt text {kind === "image" ? "(required for images)" : "(required if image)"}
-          <input
-            value={alt}
-            onChange={(e) => setAlt(e.target.value)}
-            placeholder="Describe the image"
-          />
-        </label>
-      ) : null}
-      <button type="submit" className="btn" disabled={pending}>
-        {pending ? "Uploading…" : "Upload"}
-      </button>
+    <form
+      className={
+        compact ? "media-upload media-upload--compact" : "media-upload"
+      }
+      onSubmit={onSubmit}
+    >
+      <input
+        ref={inputRef}
+        type="file"
+        accept={accept}
+        required
+        className="media-upload__file"
+        onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")}
+      />
+      <div className="media-upload__row">
+        <button
+          type="button"
+          className="btn btn--ghost"
+          disabled={pending}
+          onClick={() => inputRef.current?.click()}
+        >
+          Choose file
+        </button>
+        <p className="media-upload__name" title={fileName || undefined}>
+          {fileName || "No file selected"}
+        </p>
+        <button type="submit" className="btn" disabled={pending || !fileName}>
+          {pending ? "Uploading…" : "Upload"}
+        </button>
+      </div>
       {error ? <p className="form-error">{error}</p> : null}
     </form>
   );

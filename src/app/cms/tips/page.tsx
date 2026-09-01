@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CmsClickableRow } from "@/components/cms/clickable-row";
+import { requireCmsPage } from "@/lib/cms-auth";
 import { listTips } from "@/lib/tip-actions";
 import { formatPublishedLabel } from "@/lib/story";
 
@@ -10,6 +11,7 @@ export default async function TipsPage({
 }: {
   searchParams: Promise<{ status?: string }>;
 }) {
+  await requireCmsPage(["admin", "editor"]);
   const sp = await searchParams;
   const status =
     sp.status === "new" || sp.status === "in_progress" || sp.status === "closed"

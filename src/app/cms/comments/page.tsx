@@ -4,6 +4,7 @@ import {
   listCommentsForModeration,
   rejectComment,
 } from "@/lib/comment-actions";
+import { requireCmsPage } from "@/lib/cms-auth";
 import { formatPublishedLabel } from "@/lib/story";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +14,7 @@ export default async function CommentsPage({
 }: {
   searchParams: Promise<{ status?: string }>;
 }) {
+  await requireCmsPage(["admin", "editor"]);
   const sp = await searchParams;
   const status =
     sp.status === "approved" || sp.status === "rejected" || sp.status === "pending"

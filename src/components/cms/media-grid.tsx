@@ -69,7 +69,7 @@ export function MediaGrid({
             </button>
           )}
           <p className="media-grid__meta">
-            {item.alt || item.filename}
+            {item.filename}
             {copied === item.id
               ? " · Copied"
               : onSelect

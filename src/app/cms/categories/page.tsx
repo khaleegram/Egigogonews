@@ -4,10 +4,12 @@ import {
   toggleCategoryActive,
   updateCategory,
 } from "@/lib/category-actions";
+import { requireCmsPage } from "@/lib/cms-auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function CategoriesPage() {
+  await requireCmsPage(["admin"]);
   const rows = await listCategoriesAdmin();
 
   async function createAction(formData: FormData) {
