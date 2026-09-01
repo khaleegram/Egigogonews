@@ -357,7 +357,7 @@ export function ArticleEditorForm({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={values.heroImageUrl}
-                  alt={values.heroImageAlt || "Hero"}
+                  alt={values.heroImageAlt || values.title || "Hero"}
                   className="article-editor__hero-preview"
                 />
               ) : null}
@@ -382,14 +382,9 @@ export function ArticleEditorForm({
                   </button>
                 ) : null}
               </div>
-              <label>
-                Hero alt text
-                <input
-                  value={values.heroImageAlt}
-                  onChange={(e) => set("heroImageAlt", e.target.value)}
-                  placeholder="Required when hero is set"
-                />
-              </label>
+              <p className="article-editor__hint">
+                Alt text is set automatically from the article title.
+              </p>
             </div>
 
             <label>
@@ -586,9 +581,9 @@ export function ArticleEditorForm({
         title={picker === "body" ? "Insert image" : "Hero image"}
         onClose={() => setPicker(null)}
         onPick={(item) => {
-          if (picker === "hero") {
+            if (picker === "hero") {
             set("heroImageUrl", item.url);
-            if (item.alt) set("heroImageAlt", item.alt);
+            set("heroImageAlt", values.title || item.alt || "");
           } else if (picker === "body") {
             insertImageRef.current?.(item.url, item.alt ?? "");
           }

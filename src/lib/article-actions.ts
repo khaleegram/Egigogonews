@@ -90,18 +90,21 @@ function publishMissingFields(article: {
   bylineName: string | null;
 }): string[] {
   const missing: string[] = [];
-  if (!article.dek?.trim()) missing.push("dek");
+  if (!article.dek?.trim()) missing.push("dek (short summary under the headline)");
   const bodyText = (article.body ?? "")
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-  if (bodyText.length < 100 || wordCountFromHtml(article.body ?? "") < 20) {
-    missing.push("body");
+  const words = wordCountFromHtml(article.body ?? "");
+  if (bodyText.length < 100 || words < 20) {
+    missing.push(
+      `body (write at least ~20 words in the story — currently ${words} word${words === 1 ? "" : "s"})`,
+    );
   }
   if (!article.categoryId) missing.push("category");
-  if (!article.heroImageUrl?.trim()) missing.push("heroImageUrl");
-  if (!article.heroImageAlt?.trim()) missing.push("heroImageAlt");
-  if (!article.bylineName?.trim()) missing.push("bylineName");
+  if (!article.heroImageUrl?.trim()) missing.push("hero image");
+  // Hero alt falls back to title on save; don't block publish for it.
+  if (!article.bylineName?.trim()) missing.push("byline (author name)");
   return missing;
 }
 
@@ -135,7 +138,7 @@ export async function saveArticleDraft(
     location: data.location || null,
     videoEmbedUrl: data.videoEmbedUrl || null,
     heroImageUrl: data.heroImageUrl || null,
-    heroImageAlt: data.heroImageAlt || null,
+    heroImageAlt: data.heroImageUrl ? data.title : null,
     audioUrl: data.audioUrl || null,
     featured: data.featured ?? false,
     sponsored: data.sponsored ?? false,
@@ -273,7 +276,7 @@ export async function publishArticleNow(
   if (missing.length) {
     return {
       ok: false,
-      error: `Missing required fields: ${missing.join(", ")}`,
+      error: `Can't publish yet — ${missing.join("; ")}.`,
     };
   }
 
@@ -327,7 +330,7 @@ export async function scheduleArticle(
   if (missing.length) {
     return {
       ok: false,
-      error: `Missing required fields: ${missing.join(", ")}`,
+      error: `Can't schedule yet — ${missing.join("; ")}.`,
     };
   }
 
