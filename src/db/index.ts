@@ -1,5 +1,3 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle as drizzleNeon } from "drizzle-orm/neon-http";
 import { drizzle as drizzlePg } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "./schema";
@@ -10,14 +8,18 @@ function createDb() {
     throw new Error("DATABASE_URL is not set");
   }
 
-  // Local Postgres (Docker) uses node-postgres.
-  // Neon uses HTTP driver (works better through flaky networks than raw TCP here).
-  if (url.includes("neon.tech")) {
-    const sql = neon(url);
-    return drizzleNeon(sql, { schema });
-  }
+  // Prefer node-postgres for Neon pooler + local Postgres.
+  // Neon HTTP (`neon-http`) was flaky here (fetch failed / cold starts).
+  const pool = new Pool({
+    connectionString: url,
+    ssl: url.includes("neon.tech")
+      ? { rejectUnauthorized: false }
+      : undefined,
+    max: 5,
+    idleTimeoutMillis: 20_000,
+    connectionTimeoutMillis: 15_000,
+  });
 
-  const pool = new Pool({ connectionString: url });
   return drizzlePg(pool, { schema });
 }
 
@@ -43,7 +45,7 @@ export async function withDbRetry<T>(
       last = err;
       const msg = err instanceof Error ? err.message : String(err);
       const retryable =
-        /fetch failed|ETIMEDOUT|ENETUNREACH|ECONNRESET|connecting to database|Failed query/i.test(
+        /fetch failed|ETIMEDOUT|ENETUNREACH|ECONNRESET|connecting to database|Failed query|timeout|Connection terminated/i.test(
           msg,
         );
       if (!retryable || i === attempts - 1) throw err;

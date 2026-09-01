@@ -4,7 +4,7 @@ import { createHash, randomBytes } from "crypto";
 import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { getDb } from "@/db";
+import { getDb, withDbRetry } from "@/db";
 import {
   articles,
   categories,
@@ -124,15 +124,18 @@ export async function unsubscribeNewsletter(token: string) {
 }
 
 export async function getNewsletterStats() {
-  const db = getDb();
-  const all = await db.select().from(newsletterSubscribers);
-  const confirmed = all.filter((s) => s.confirmedAt && !s.unsubscribedAt).length;
-  const sends = await db
-    .select()
-    .from(newsletterSends)
-    .orderBy(desc(newsletterSends.sentAt))
-    .limit(10);
-  return { total: all.length, confirmed, sends };
+  return withDbRetry(async () => {
+    const db = getDb();
+    const all = await db.select().from(newsletterSubscribers);
+    const confirmed = all.filter((s) => s.confirmedAt && !s.unsubscribedAt)
+      .length;
+    const sends = await db
+      .select()
+      .from(newsletterSends)
+      .orderBy(desc(newsletterSends.sentAt))
+      .limit(10);
+    return { total: all.length, confirmed, sends };
+  });
 }
 
 export async function listNewsletterPickArticles() {

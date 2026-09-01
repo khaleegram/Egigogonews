@@ -1,0 +1,44 @@
+# Publishes scheduled articles via the app's cron endpoint.
+# Free alternative to Vercel Cron — docs/03-SYSTEM-DESIGN.md
+#
+# Required GitHub secrets:
+#   CRON_SECRET  — same value as Vercel / .env CRON_SECRET
+#   APP_URL      — production origin, e.g. https://egigogonewspaper.com
+#                  (or https://your-app.vercel.app until the domain is live)
+
+name: Cron publish
+
+on:
+  schedule:
+    # Every 10 minutes (UTC). GitHub can delay a few minutes on free repos.
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: cron-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Trigger /api/cron/publish
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${APP_URL:-}" ] || [ -z "${CRON_SECRET:-}" ]; then
+            echo "Missing APP_URL or CRON_SECRET secrets."
+            exit 1
+          fi
+          BASE="${APP_URL%/}"
+          code=$(curl -sS -o /tmp/cron-publish.json -w "%{http_code}" \
+            -X POST "${BASE}/api/cron/publish" \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "Content-Type: application/json")
+          echo "HTTP ${code}"
+          cat /tmp/cron-publish.json || true
+          echo
+          test "$code" = "200"

@@ -186,10 +186,16 @@ export async function getAuthorName(userId: string) {
 }
 
 export async function getActiveBreaking() {
-  const db = getDb();
-  const [row] = await db.select().from(breaking).where(eq(breaking.id, 1)).limit(1);
-  if (!row || !row.active || !row.headline) return null;
-  return { headline: row.headline, href: row.url || "/" };
+  return withDbRetry(async () => {
+    const db = getDb();
+    const [row] = await db
+      .select()
+      .from(breaking)
+      .where(eq(breaking.id, 1))
+      .limit(1);
+    if (!row || !row.active || !row.headline) return null;
+    return { headline: row.headline, href: row.url || "/" };
+  });
 }
 
 export async function searchPublishedStories(query: string, limit = 40) {

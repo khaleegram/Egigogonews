@@ -15,7 +15,7 @@
 | Media | **Cloudflare R2** free (10 GB, egress free) |
 | Email | **Brevo** free (~300 emails/day) |
 | Push | Web Push + VAPID (`web-push` lib + `/sw.js`) |
-| Scheduled publish | HTTP endpoint + **external free cron** (Hobby has no reliable Vercel Cron) |
+| Scheduled publish | HTTP endpoint + **GitHub Actions** cron (free; not Vercel Cron) |
 
 No separate API service. No Redis. No Clerk. No Vercel Blob.
 
@@ -30,8 +30,8 @@ Reader / staff browser
         ├── Brevo (reset, confirm, newsletter, staff alerts)
         └── Web Push (breaking only)
         
- External free cron ──POST──► /api/cron/publish  (CRON_SECRET)
- External free cron ──POST──► /api/cron/backup   (optional; dumps to R2)
+ External GitHub Actions cron ──POST──► /api/cron/publish  (CRON_SECRET)
+ External GitHub Actions cron ──POST──► /api/cron/backup   (optional; dumps to R2)
 ```
 
 ## 2. Route map

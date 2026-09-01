@@ -1,0 +1,42 @@
+# Daily backup ping → /api/cron/backup (records lastBackupAt; dump→R2 when wired).
+#
+# Required GitHub secrets:
+#   CRON_SECRET  — same value as Vercel / .env CRON_SECRET
+#   APP_URL      — production origin, e.g. https://egigogonewspaper.com
+
+name: Cron backup
+
+on:
+  schedule:
+    # 03:15 UTC daily
+    - cron: "15 3 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: cron-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Trigger /api/cron/backup
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${APP_URL:-}" ] || [ -z "${CRON_SECRET:-}" ]; then
+            echo "Missing APP_URL or CRON_SECRET secrets."
+            exit 1
+          fi
+          BASE="${APP_URL%/}"
+          code=$(curl -sS -o /tmp/cron-backup.json -w "%{http_code}" \
+            -X POST "${BASE}/api/cron/backup" \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "Content-Type: application/json")
+          echo "HTTP ${code}"
+          cat /tmp/cron-backup.json || true
+          echo
+          test "$code" = "200"
