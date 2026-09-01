@@ -11,7 +11,8 @@ export default async function BreakingPage() {
     <>
       <h1>Breaking</h1>
       <p style={{ color: "var(--ink-muted)", marginBottom: "1rem" }}>
-        Singleton sitewide bar. Activating sends one push when configured.
+        Sitewide breaking bar. Turning it on sends a push to subscribed readers
+        (same as publishing a new article).
       </p>
       <BreakingForm
         initial={{

@@ -4,6 +4,7 @@ import { getDb } from "@/db";
 import { articles, categories } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 import { articleHref } from "@/lib/story";
+import { sendPushToAll } from "@/lib/push";
 
 /** External free cron hits this to publish scheduled articles. */
 export async function POST(req: Request) {
@@ -42,6 +43,18 @@ export async function POST(req: Request) {
     revalidatePath("/");
     revalidatePath(`/category/${row.category.slug}`);
     revalidatePath(articleHref(row.category.slug, row.article.slug));
+
+    try {
+      await sendPushToAll({
+        title: row.article.title,
+        body:
+          row.article.dek?.trim() ||
+          `${row.category.name} · Egigogo Newspaper`,
+        url: articleHref(row.category.slug, row.article.slug),
+      });
+    } catch (err) {
+      console.error("[cron/publish] push failed", err);
+    }
   }
 
   return NextResponse.json({ ok: true, published: due.length });

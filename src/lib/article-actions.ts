@@ -289,11 +289,12 @@ export async function publishArticleNow(
   }
 
   const now = new Date();
+  const wasPublished = row.article.status === "published";
   await db
     .update(articles)
     .set({
       status: "published",
-      publishedAt: now,
+      publishedAt: row.article.publishedAt ?? now,
       publishAt: null,
       unpublishedAt: null,
       updatedAt: now,
@@ -306,6 +307,23 @@ export async function publishArticleNow(
     row.article.type,
   );
   revalidatePath(`/cms/articles/${id}`);
+
+  if (!wasPublished) {
+    const href = articleHref(row.category.slug, row.article.slug);
+    try {
+      const { sendPushToAll } = await import("@/lib/push");
+      await sendPushToAll({
+        title: row.article.title,
+        body:
+          row.article.dek?.trim() ||
+          `${row.category.name} · Egigogo Newspaper`,
+        url: href,
+      });
+    } catch (err) {
+      console.error("[publish] push failed", err);
+    }
+  }
+
   return { ok: true, id };
 }
 

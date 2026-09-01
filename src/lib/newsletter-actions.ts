@@ -15,6 +15,7 @@ import { isStaff, requireStaff } from "@/lib/cms-auth";
 import {
   brandedEmailHtml,
   emailConfigured,
+  newsletterIssueHtml,
   sendEmail,
   siteUrl,
 } from "@/lib/email";
@@ -72,10 +73,14 @@ export async function subscribeNewsletter(emailRaw: string, honeypot?: string) {
     subject: "Confirm your Egigogo Newspaper subscription",
     html: brandedEmailHtml({
       title: "Confirm your subscription",
-      bodyHtml:
-        "<p>Thanks for signing up for the Egigogo Newspaper briefing. Open the button below to confirm your email.</p>",
+      preheader: "One tap to start receiving the Egigogo briefing.",
+      bodyHtml: `
+        <p style="margin:0 0 12px;color:#3a433e">Thanks for joining <strong style="color:#1a1f1c">Egigogo Newspaper</strong>.</p>
+        <p style="margin:0;color:#3a433e">Tap the button below to confirm your email and get our briefing — politics, investigations, and stories that matter across Northern Nigeria and beyond.</p>
+      `,
       ctaLabel: "Confirm subscription",
       ctaUrl: confirmUrl,
+      footerNote: "If you didn’t subscribe, you can ignore this message.",
     }),
     text: `Confirm your Egigogo Newspaper subscription:\n\n${confirmUrl}\n`,
   });
@@ -168,7 +173,11 @@ export async function listNewsletterPickArticles() {
       id: articles.id,
       title: articles.title,
       slug: articles.slug,
+      dek: articles.dek,
+      byline: articles.bylineName,
+      heroImageUrl: articles.heroImageUrl,
       categorySlug: categories.slug,
+      categoryName: categories.name,
     })
     .from(articles)
     .innerJoin(categories, eq(articles.categoryId, categories.id))
@@ -213,47 +222,76 @@ export async function sendNewsletterIssue(raw: z.infer<typeof sendSchema>) {
     return { ok: false as const, error: "No confirmed subscribers" };
   }
 
-  let linksHtml = "";
+  let stories: {
+    title: string;
+    dek?: string | null;
+    href: string;
+    category?: string | null;
+    byline?: string | null;
+    imageUrl?: string | null;
+  }[] = [];
+
   if (parsed.data.articleIds.length) {
     const picked = await db
       .select({
         id: articles.id,
         title: articles.title,
         slug: articles.slug,
+        dek: articles.dek,
+        byline: articles.bylineName,
+        heroImageUrl: articles.heroImageUrl,
         categorySlug: categories.slug,
+        categoryName: categories.name,
       })
       .from(articles)
       .innerJoin(categories, eq(articles.categoryId, categories.id))
       .where(inArray(articles.id, parsed.data.articleIds));
 
     const map = new Map(picked.map((a) => [a.id, a]));
-    linksHtml = parsed.data.articleIds
+    stories = parsed.data.articleIds
       .map((id) => map.get(id))
       .filter(Boolean)
-      .map((a) => {
-        const href = siteUrl(articleHref(a!.categorySlug, a!.slug));
-        return `<li><a href="${href}">${a!.title}</a></li>`;
-      })
-      .join("");
+      .map((a) => ({
+        title: a!.title,
+        dek: a!.dek,
+        href: siteUrl(articleHref(a!.categorySlug, a!.slug)),
+        category: a!.categoryName,
+        byline: a!.byline,
+        imageUrl: a!.heroImageUrl,
+      }));
   }
-
-  const html = `
-    <h1>${parsed.data.subject}</h1>
-    <p>${parsed.data.intro || ""}</p>
-    ${linksHtml ? `<ul>${linksHtml}</ul>` : ""}
-    <p>Egigogo Newspaper</p>
-  `;
 
   let sent = 0;
   for (const sub of recipients) {
-    const unsub = sub.unsubscribeTokenHash
-      ? "" // token is hashed — use stored hash only for verify; skip per-sub link if we only have hash
-      : "";
-    void unsub;
+    const unsubToken = randomBytes(24).toString("hex");
+    await db
+      .update(newsletterSubscribers)
+      .set({ unsubscribeTokenHash: hashToken(unsubToken) })
+      .where(eq(newsletterSubscribers.id, sub.id));
+
+    const unsubscribeUrl = siteUrl(
+      `/newsletter/unsubscribe?token=${unsubToken}`,
+    );
+    const html = newsletterIssueHtml({
+      subject: parsed.data.subject,
+      intro: parsed.data.intro,
+      stories,
+      unsubscribeUrl,
+    });
+    const textLines = [
+      parsed.data.subject,
+      parsed.data.intro || "",
+      "",
+      ...stories.map((s) => `• ${s.title}\n  ${s.href}`),
+      "",
+      `Unsubscribe: ${unsubscribeUrl}`,
+    ];
+
     const result = await sendEmail({
       to: sub.email,
       subject: parsed.data.subject,
       html,
+      text: textLines.filter(Boolean).join("\n"),
     });
     if (result.ok) sent += 1;
   }

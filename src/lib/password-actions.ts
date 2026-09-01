@@ -9,6 +9,7 @@ import { passwordResetTokens, users } from "@/db/schema";
 import {
   brandedEmailHtml,
   emailConfigured,
+  escapeHtml,
   sendEmail,
   siteUrl,
 } from "@/lib/email";
@@ -53,10 +54,14 @@ export async function requestPasswordReset(emailRaw: string) {
       subject: "Reset your Egigogo CMS password",
       html: brandedEmailHtml({
         title: "Reset your password",
-        bodyHtml:
-          "<p>We received a request to reset your Egigogo CMS password. This link expires in one hour.</p>",
+        preheader: "Choose a new CMS password — link expires in one hour.",
+        bodyHtml: `
+          <p style="margin:0 0 12px;color:#3a433e">We received a request to reset the CMS password for <strong style="color:#1a1f1c">${escapeHtml(user.email)}</strong>.</p>
+          <p style="margin:0;color:#3a433e">This link expires in <strong style="color:#1a1f1c">one hour</strong>. If you didn’t ask for a reset, you can ignore this email.</p>
+        `,
         ctaLabel: "Choose a new password",
         ctaUrl: resetUrl,
+        footerNote: "Staff access only — never share this link.",
       }),
       text: `Reset your Egigogo CMS password (expires in 1 hour):\n\n${resetUrl}\n`,
     });
