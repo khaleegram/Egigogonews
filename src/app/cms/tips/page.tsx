@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CmsClickableRow } from "@/components/cms/clickable-row";
 import { listTips } from "@/lib/tip-actions";
 import { formatPublishedLabel } from "@/lib/story";
 
@@ -28,34 +29,34 @@ export default async function TipsPage({
         {" · "}
         <Link href="/cms/tips?status=closed">Closed</Link>
       </p>
-      <div className="cms-table-wrap"><table className="cms-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Contact</th>
-            <th>Snippet</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.length === 0 ? (
+      <div className="cms-table-wrap">
+        <table className="cms-table">
+          <thead>
             <tr>
-              <td colSpan={4}>No tips.</td>
+              <th>Date</th>
+              <th>Contact</th>
+              <th>Snippet</th>
+              <th>Status</th>
             </tr>
-          ) : (
-            rows.map((row) => (
-              <tr key={row.id}>
-                <td>{formatPublishedLabel(row.createdAt)}</td>
-                <td>
-                  <Link href={`/cms/tips/${row.id}`}>{row.contact}</Link>
-                </td>
-                <td>{row.message.slice(0, 80)}</td>
-                <td>{row.status}</td>
+          </thead>
+          <tbody>
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={4}>No tips.</td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table></div>
+            ) : (
+              rows.map((row) => (
+                <CmsClickableRow key={row.id} href={`/cms/tips/${row.id}`}>
+                  <td>{formatPublishedLabel(row.createdAt)}</td>
+                  <td>{row.contact}</td>
+                  <td>{row.message.slice(0, 80)}</td>
+                  <td>{row.status}</td>
+                </CmsClickableRow>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }
