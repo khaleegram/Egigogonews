@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { and, count, desc, eq, gte, sql } from "drizzle-orm";
+import { CmsClickableRow } from "@/components/cms/clickable-row";
 import { getDb } from "@/db";
 import { articles, comments, tips } from "@/db/schema";
 import { getStaff } from "@/lib/cms-auth";
@@ -134,13 +135,14 @@ export default async function CmsDashboardPage() {
             </tr>
           ) : (
             recent.map((row) => (
-              <tr key={row.id}>
-                <td>
-                  <Link href={`/cms/articles/${row.id}`}>{row.title}</Link>
-                </td>
+              <CmsClickableRow
+                key={row.id}
+                href={`/cms/articles/${row.id}`}
+              >
+                <td>{row.title}</td>
                 <td>{row.status}</td>
                 <td>{formatPublishedLabel(row.updatedAt)}</td>
-              </tr>
+              </CmsClickableRow>
             ))
           )}
         </tbody>
