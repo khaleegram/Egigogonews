@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useState } from "react";
+import { ThemeToggle } from "@/components/site/theme-toggle";
 import { logoutAction } from "@/lib/auth-actions";
 import { canSeeCmsLink, type StaffRole } from "@/lib/cms-access";
 
@@ -180,6 +181,10 @@ export function CmsNav({
         </nav>
 
         <div className="cms-nav__foot">
+          <div className="cms-nav__theme">
+            <ThemeToggle />
+            <span>Theme</span>
+          </div>
           <Link href="/">View site</Link>
           <span aria-hidden> · </span>
           <form action={logoutAction}>
@@ -193,12 +198,15 @@ export function CmsNav({
       {/* Mobile app chrome */}
       <header className="cms-appbar">
         <p className="cms-appbar__brand">Egigogo CMS</p>
-        {staffName ? (
-          <p className="cms-appbar__meta">
-            {staffName}
-            {role ? ` · ${role}` : ""}
-          </p>
-        ) : null}
+        <div className="cms-appbar__end">
+          <ThemeToggle />
+          {staffName ? (
+            <p className="cms-appbar__meta">
+              {staffName}
+              {role ? ` · ${role}` : ""}
+            </p>
+          ) : null}
+        </div>
       </header>
 
       <nav className="cms-tabbar" aria-label="CMS">

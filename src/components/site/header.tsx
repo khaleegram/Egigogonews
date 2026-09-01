@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { BrandLogo } from "@/components/site/brand-logo";
+import { ThemeToggle } from "@/components/site/theme-toggle";
 import { SEED_CATEGORIES } from "@/lib/constants";
 import {
   subscribePushAction,
@@ -283,6 +284,8 @@ export function SiteHeader() {
               <option value="yo">YO</option>
             </select>
           </label>
+
+          <ThemeToggle />
 
           <button
             type="button"

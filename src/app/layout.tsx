@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope, Newsreader } from "next/font/google";
 import { PwaRegister } from "@/components/site/pwa-register";
+import { themeBootScript } from "@/lib/theme";
 import "./globals.css";
 
 const sans = Manrope({
@@ -86,7 +87,7 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#1b5c45" },
-    { media: "(prefers-color-scheme: dark)", color: "#1b5c45" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e1311" },
   ],
 };
 
@@ -96,7 +97,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable}`}>
+    <html
+      lang="en"
+      className={`${sans.variable} ${display.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{ __html: themeBootScript }}
+        />
+      </head>
       <body>
         <PwaRegister />
         {children}
