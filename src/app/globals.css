@@ -388,13 +388,17 @@ iframe.goog-te-banner-frame {
 .brand-logo-link {
   grid-area: logo;
   display: inline-flex;
+  align-items: center;
   text-decoration: none;
-  color: inherit;
+  color: var(--ink);
+  min-width: 0;
 }
 
 .brand-logo--header {
   display: inline-flex;
   align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
 }
 
 .brand-logo-link:hover .brand-logo--header {
@@ -402,11 +406,40 @@ iframe.goog-te-banner-frame {
 }
 
 .brand-logo__mark {
-  width: 2rem;
-  height: 2rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 0.35rem;
   object-fit: cover;
   display: block;
+  flex-shrink: 0;
+}
+
+.brand-logo__wordmark {
+  display: flex;
+  flex-direction: column;
+  gap: 0.06rem;
+  min-width: 0;
+  line-height: 1;
+}
+
+.brand-logo__name {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.05rem, 2.8vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.brand-logo__tag {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  white-space: nowrap;
 }
 
 .brand-logo--footer {
@@ -677,6 +710,14 @@ iframe.goog-te-banner-frame {
 
   .site-tagline {
     display: none;
+  }
+
+  .brand-logo__name {
+    font-size: 1.05rem;
+  }
+
+  .brand-logo__tag {
+    letter-spacing: 0.22em;
   }
 
   .site-header__bar {

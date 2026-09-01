@@ -27,7 +27,11 @@ export function BrandLogo({
       </span>
     );
     return href ? (
-      <Link href={href} className="brand-logo-link" aria-label="Egigogo Newspaper home">
+      <Link
+        href={href}
+        className="brand-logo-link"
+        aria-label="Egigogo Newspaper home"
+      >
         {inner}
       </Link>
     ) : (
@@ -40,16 +44,24 @@ export function BrandLogo({
       <Image
         src="/brand/egigogo-mark.jpg"
         alt=""
-        width={36}
-        height={36}
+        width={40}
+        height={40}
         className="brand-logo__mark"
         priority
       />
+      <span className="brand-logo__wordmark" aria-hidden="true">
+        <span className="brand-logo__name">Egigogo</span>
+        <span className="brand-logo__tag">Newspaper</span>
+      </span>
     </span>
   );
 
   return href ? (
-    <Link href={href} className="brand-logo-link" aria-label="Egigogo Newspaper home">
+    <Link
+      href={href}
+      className="brand-logo-link"
+      aria-label="Egigogo Newspaper home"
+    >
       {inner}
     </Link>
   ) : (

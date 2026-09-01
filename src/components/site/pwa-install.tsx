@@ -59,7 +59,7 @@ export function PwaInstallBanner() {
   return (
     <div className="pwa-install" role="region" aria-label="Install app">
       <div className="pwa-install__copy">
-        <strong>Install Egigogo</strong>
+        <strong>Install Egigogo Newspaper</strong>
         <p>
           {isIos && !deferred
             ? "Share → Add to Home Screen for the full app experience."

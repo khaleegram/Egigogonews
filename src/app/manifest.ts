@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Egigogo Newspaper",
-    short_name: "Egigogo",
+    short_name: "Egigogo News",
     description:
       "Truth. Integrity. Impact. — Niger State, Northern Nigeria, and national affairs.",
     start_url: "/",
