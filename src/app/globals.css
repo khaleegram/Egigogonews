@@ -905,7 +905,7 @@ iframe.goog-te-banner-frame {
 }
 
 .site-footer a:hover {
-  color: var(--accent-soft);
+  color: #7dcea8;
 }
 
 .site-footer__grid {
@@ -933,12 +933,12 @@ iframe.goog-te-banner-frame {
   font-size: 0.72rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent-soft);
+  color: #7dcea8;
 }
 
 .site-footer__blurb {
   margin: 0.75rem 0 0;
-  color: color-mix(in srgb, var(--paper) 62%, transparent);
+  color: var(--chrome-muted);
   font-size: 0.95rem;
 }
 
@@ -956,18 +956,18 @@ iframe.goog-te-banner-frame {
   margin: 2rem auto 0;
   padding-top: 1.25rem;
   border-top: 1px solid color-mix(in srgb, white 16%, transparent);
-  color: color-mix(in srgb, var(--paper) 55%, transparent);
+  color: var(--chrome-muted);
   font-size: 0.85rem;
 }
 
 .site-footer .newsletter-form input {
   background: color-mix(in srgb, white 8%, transparent);
   border-color: color-mix(in srgb, white 22%, transparent);
-  color: var(--paper-elevated);
+  color: var(--chrome-fg);
 }
 
 .site-footer .newsletter-form input::placeholder {
-  color: color-mix(in srgb, var(--paper) 45%, transparent);
+  color: var(--chrome-muted);
 }
 
 .site-footer .newsletter-form button {
