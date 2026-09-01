@@ -8,6 +8,7 @@ export type HeroStory = {
   imageAlt: string;
   publishedLabel: string;
   viewCount: number;
+  byline?: string;
 };
 
 /** Temporary demo slides until CMS featured stories are wired. */
@@ -24,6 +25,7 @@ export const DEMO_HERO_STORIES: HeroStory[] = [
     imageAlt: "People gathered outdoors at a community meeting",
     publishedLabel: "3 hours ago",
     viewCount: 1284,
+    byline: "Egigogo Newspaper",
   },
   {
     id: "2",
@@ -36,6 +38,7 @@ export const DEMO_HERO_STORIES: HeroStory[] = [
     imageAlt: "Rows of green crops under open sky",
     publishedLabel: "Yesterday",
     viewCount: 892,
+    byline: "Egigogo Newspaper",
   },
   {
     id: "3",
@@ -48,5 +51,6 @@ export const DEMO_HERO_STORIES: HeroStory[] = [
     imageAlt: "Assembly hall with seated audience",
     publishedLabel: "2 days ago",
     viewCount: 2103,
+    byline: "Egigogo Newspaper",
   },
 ];

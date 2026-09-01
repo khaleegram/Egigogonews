@@ -199,6 +199,125 @@ textarea {
   gap: 0.7rem;
 }
 
+/* Home hero — fixed height frame (no aspect+maxHeight crush) */
+.home-hero__media {
+  position: relative;
+  width: 100%;
+  height: clamp(14rem, 42vw, 22rem);
+  background: var(--ink);
+  overflow: hidden;
+}
+
+.home-hero__media-link {
+  position: absolute;
+  inset: 0;
+}
+
+.home-hero__media img {
+  object-fit: cover;
+  object-position: center center;
+}
+
+.home-hero__panel {
+  background: var(--paper-elevated);
+  border-top: 3px solid var(--accent);
+}
+
+.home-hero__copy {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0.85rem 1.25rem 1.1rem;
+}
+
+.home-hero__meta {
+  margin: 0 0 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.home-hero__meta-sep {
+  color: var(--line);
+  margin: 0 0.5rem;
+}
+
+.home-hero__meta-muted {
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+
+.home-hero__title {
+  margin: 0 0 0.45rem;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.65rem, 4.2vw, 2.65rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  max-width: 38rem;
+}
+
+.home-hero__byline {
+  margin: 0 0 0.65rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.home-hero__dek {
+  margin: 0 0 1.15rem;
+  max-width: 36rem;
+  color: var(--ink-muted);
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.home-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.home-hero__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Google Translate injects branding / floating “N” badge outside sr-only */
+#google_translate_element,
+.goog-te-banner-frame,
+.goog-te-balloon-frame,
+.goog-te-menu-frame,
+.goog-te-gadget,
+.goog-te-gadget-icon,
+.goog-logo-link,
+.goog-te-spinner-pos,
+body > .skiptranslate,
+.VIpgJd-ZVi9od-ORHb-OEVmcd,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+#goog-gt-tt,
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+
+iframe.goog-te-banner-frame {
+  display: none !important;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

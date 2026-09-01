@@ -100,14 +100,7 @@ export function HomeHero({ stories }: { stories: HeroStory[] }) {
       style={{ borderBottom: "1px solid var(--line)" }}
     >
       <div
-        style={{
-          position: "relative",
-          width: "100%",
-          aspectRatio: "2.4 / 1",
-          maxHeight: "min(28vh, 16.5rem)",
-          background: "var(--ink)",
-          overflow: "hidden",
-        }}
+        className="home-hero__media"
         onTouchStart={(e) => {
           touchX.current = e.changedTouches[0]?.clientX ?? null;
         }}
@@ -124,7 +117,7 @@ export function HomeHero({ stories }: { stories: HeroStory[] }) {
         <Link
           href={story.href}
           aria-label={`Read: ${story.title}`}
-          style={{ position: "absolute", inset: 0 }}
+          className="home-hero__media-link"
         >
           <Image
             key={story.id}
@@ -134,94 +127,49 @@ export function HomeHero({ stories }: { stories: HeroStory[] }) {
             priority
             sizes="100vw"
             className={reduceMotion ? undefined : "hero-media-ken"}
-            style={{ objectFit: "cover" }}
+            style={{ objectFit: "cover", objectPosition: "center" }}
           />
         </Link>
       </div>
 
-      <div
-        style={{
-          background: "var(--paper-elevated)",
-          borderTop: "3px solid var(--accent)",
-        }}
-      >
+      <div className="home-hero__panel">
         <div
           key={story.id}
-          className={reduceMotion ? undefined : "hero-copy-enter"}
-          style={{
-            maxWidth: "var(--max)",
-            margin: "0 auto",
-            padding: "0.85rem 1.25rem 1rem",
-          }}
+          className={
+            reduceMotion
+              ? "home-hero__copy"
+              : "home-hero__copy hero-copy-enter"
+          }
         >
-          <p
-            style={{
-              margin: "0 0 0.65rem",
-              fontSize: "0.75rem",
-              fontWeight: 700,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              color: "var(--accent)",
-            }}
-          >
+          <p className="home-hero__meta">
             {story.category}
-            <span
-              style={{ color: "var(--line)", margin: "0 0.5rem" }}
-              aria-hidden
-            >
+            <span className="home-hero__meta-sep" aria-hidden>
               ·
             </span>
-            <span style={{ color: "var(--ink-muted)", fontWeight: 500 }}>
+            <span className="home-hero__meta-muted">
               {story.publishedLabel}
             </span>
-            <span
-              style={{ color: "var(--line)", margin: "0 0.5rem" }}
-              aria-hidden
-            >
+            <span className="home-hero__meta-sep" aria-hidden>
               ·
             </span>
-            <span style={{ color: "var(--ink-muted)", fontWeight: 500 }}>
+            <span className="home-hero__meta-muted">
               {formatViews(story.viewCount)} views
             </span>
           </p>
 
-          <h2
-            style={{
-              margin: "0 0 0.75rem",
-              fontFamily: "var(--font-display), Georgia, serif",
-              fontSize: "clamp(1.65rem, 4.2vw, 2.65rem)",
-              fontWeight: 600,
-              lineHeight: 1.15,
-              letterSpacing: "-0.01em",
-              maxWidth: "38rem",
-            }}
-          >
+          <h2 className="home-hero__title">
             <Link href={story.href} className="hero-headline-link">
               {story.title}
             </Link>
           </h2>
 
-          <p
-            style={{
-              margin: "0 0 1.15rem",
-              maxWidth: "36rem",
-              color: "var(--ink-muted)",
-              fontSize: "1.05rem",
-              lineHeight: 1.5,
-            }}
-          >
-            {story.dek}
-          </p>
+          {story.byline ? (
+            <p className="home-hero__byline">By {story.byline}</p>
+          ) : null}
 
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "1rem",
-            }}
-          >
+          <p className="home-hero__dek">{story.dek}</p>
+
+          <div className="home-hero__actions">
             <Link href={story.href} className="hero-cta">
               Read story
               <span aria-hidden style={{ fontSize: "1.1em" }}>
@@ -230,13 +178,7 @@ export function HomeHero({ stories }: { stories: HeroStory[] }) {
             </Link>
 
             {multi ? (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.75rem",
-                }}
-              >
+              <div className="home-hero__nav">
                 <button
                   type="button"
                   aria-label="Previous featured story"

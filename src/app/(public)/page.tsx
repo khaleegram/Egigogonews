@@ -19,6 +19,7 @@ function toHero(s: Story) {
     imageAlt: s.imageAlt,
     publishedLabel: s.publishedLabel,
     viewCount: s.viewCount,
+    byline: s.byline,
   };
 }
 

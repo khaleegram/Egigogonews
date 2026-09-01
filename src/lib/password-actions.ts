@@ -6,7 +6,12 @@ import { and, eq, gt, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { getDb } from "@/db";
 import { passwordResetTokens, users } from "@/db/schema";
-import { emailConfigured, sendEmail, siteUrl } from "@/lib/email";
+import {
+  brandedEmailHtml,
+  emailConfigured,
+  sendEmail,
+  siteUrl,
+} from "@/lib/email";
 
 function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
@@ -46,8 +51,14 @@ export async function requestPasswordReset(emailRaw: string) {
     const mail = await sendEmail({
       to: user.email,
       subject: "Reset your Egigogo CMS password",
-      html: `<p>Reset your password (expires in 1 hour):</p><p><a href="${resetUrl}">${resetUrl}</a></p>`,
-      text: `Reset your password: ${resetUrl}`,
+      html: brandedEmailHtml({
+        title: "Reset your password",
+        bodyHtml:
+          "<p>We received a request to reset your Egigogo CMS password. This link expires in one hour.</p>",
+        ctaLabel: "Choose a new password",
+        ctaUrl: resetUrl,
+      }),
+      text: `Reset your Egigogo CMS password (expires in 1 hour):\n\n${resetUrl}\n`,
     });
 
     if (!mail.ok && !emailConfigured()) {

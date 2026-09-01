@@ -21,7 +21,7 @@ export default async function NewsletterConfirmPage({
         {result.ok
           ? "Thanks for confirming. You will receive the Egigogo Newspaper briefing."
           : result.error ||
-            "If this link is invalid or expired, request a new confirmation from the footer form."}
+            "This link is invalid or expired. Subscribe again from the website footer if you still want the briefing."}
       </p>
     </div>
   );

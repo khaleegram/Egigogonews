@@ -11,6 +11,7 @@ import {
 import { ShareRow } from "@/components/site/share-row";
 import { CommentBlock } from "@/components/site/comment-block";
 import { listApprovedComments } from "@/lib/comment-actions";
+import { storyJsonLd } from "@/lib/story-metadata";
 
 function embedSrc(url: string) {
   try {
@@ -52,6 +53,12 @@ export async function ArticleView({
 
   return (
     <div className="article-layout">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(storyJsonLd(story)),
+        }}
+      />
       <article>
         <nav className="breadcrumb" aria-label="Breadcrumb">
           <Link href="/">Home</Link>

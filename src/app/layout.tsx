@@ -17,7 +17,7 @@ const display = Newsreader({
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-  "https://egigogo.ng";
+  "https://egigogonewspaper.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -43,6 +43,29 @@ export const metadata: Metadata = {
       { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Egigogo Newspaper",
+    title: "Egigogo Newspaper",
+    description:
+      "Truth. Integrity. Impact. — Niger State, Northern Nigeria, and national affairs.",
+    url: siteUrl,
+    images: [
+      {
+        url: "/icons/icon-512.png",
+        width: 512,
+        height: 512,
+        alt: "Egigogo Newspaper",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Egigogo Newspaper",
+    description:
+      "Truth. Integrity. Impact. — Niger State, Northern Nigeria, and national affairs.",
+    images: ["/icons/icon-512.png"],
   },
   other: {
     "mobile-web-app-capable": "yes",

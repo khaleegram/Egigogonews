@@ -86,8 +86,51 @@ export async function sendEmail(opts: {
 }
 
 export function siteUrl(path = "/") {
+  const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const fromVercel =
+    process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim() ||
+    process.env.VERCEL_URL?.trim();
   const base = (
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
+    fromEnv ||
+    (fromVercel ? `https://${fromVercel}` : "http://localhost:3000")
   ).replace(/\/$/, "");
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+/** Branded HTML shell for transactional mail (confirm, reset, etc.). */
+export function brandedEmailHtml(opts: {
+  title: string;
+  bodyHtml: string;
+  ctaLabel?: string;
+  ctaUrl?: string;
+}) {
+  const brand = "Egigogo Newspaper";
+  const cta =
+    opts.ctaLabel && opts.ctaUrl
+      ? `<p style="margin:28px 0 8px">
+          <a href="${opts.ctaUrl}" style="display:inline-block;background:#1b5c45;color:#fff;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:0.02em;padding:14px 22px;border-radius:4px">${opts.ctaLabel}</a>
+        </p>
+        <p style="margin:0;font-size:13px;color:#5a635e;word-break:break-all">Or open this link:<br/><a href="${opts.ctaUrl}" style="color:#1b5c45">${opts.ctaUrl}</a></p>`
+      : "";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<body style="margin:0;padding:0;background:#eef1ef;font-family:Georgia,'Times New Roman',serif">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef1ef;padding:24px 12px">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#fff;border:1px solid #d5dcd7;border-radius:6px;overflow:hidden">
+        <tr><td style="background:#1b5c45;padding:18px 24px">
+          <p style="margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#e8f2ed">${brand}</p>
+        </td></tr>
+        <tr><td style="padding:28px 24px 32px;color:#1a1f1c">
+          <h1 style="margin:0 0 14px;font-size:22px;line-height:1.25;font-weight:600">${opts.title}</h1>
+          <div style="font-family:system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.55;color:#3a433e">${opts.bodyHtml}</div>
+          ${cta}
+        </td></tr>
+      </table>
+      <p style="margin:16px 0 0;font-family:system-ui,-apple-system,sans-serif;font-size:12px;color:#7a857f">Truth. Integrity. Impact.</p>
+    </td></tr>
+  </table>
+</body>
+</html>`;
 }

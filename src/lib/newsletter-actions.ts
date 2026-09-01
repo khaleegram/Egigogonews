@@ -12,7 +12,12 @@ import {
   newsletterSubscribers,
 } from "@/db/schema";
 import { isStaff, requireStaff } from "@/lib/cms-auth";
-import { emailConfigured, sendEmail, siteUrl } from "@/lib/email";
+import {
+  brandedEmailHtml,
+  emailConfigured,
+  sendEmail,
+  siteUrl,
+} from "@/lib/email";
 import { articleHref } from "@/lib/story";
 
 function hashToken(token: string) {
@@ -65,8 +70,14 @@ export async function subscribeNewsletter(emailRaw: string, honeypot?: string) {
   const mail = await sendEmail({
     to: email,
     subject: "Confirm your Egigogo Newspaper subscription",
-    html: `<p>Confirm your subscription:</p><p><a href="${confirmUrl}">${confirmUrl}</a></p>`,
-    text: `Confirm your subscription: ${confirmUrl}`,
+    html: brandedEmailHtml({
+      title: "Confirm your subscription",
+      bodyHtml:
+        "<p>Thanks for signing up for the Egigogo Newspaper briefing. Open the button below to confirm your email.</p>",
+      ctaLabel: "Confirm subscription",
+      ctaUrl: confirmUrl,
+    }),
+    text: `Confirm your Egigogo Newspaper subscription:\n\n${confirmUrl}\n`,
   });
 
   if (!mail.ok) {
@@ -81,25 +92,34 @@ export async function subscribeNewsletter(emailRaw: string, honeypot?: string) {
   return { ok: true as const, message: "Check your email to confirm." };
 }
 
+/** Confirm from the email link (GET). Idempotent so scanners + the user both get success. */
 export async function confirmNewsletter(token: string) {
   if (!token) return { ok: false as const, error: "Missing token" };
   const db = getDb();
-  const hash = hashToken(token);
+  const hash = hashToken(token.trim());
   const [row] = await db
     .select()
     .from(newsletterSubscribers)
     .where(eq(newsletterSubscribers.confirmTokenHash, hash))
     .limit(1);
-  if (!row) return { ok: false as const, error: "Invalid or expired link" };
+  if (!row) {
+    return {
+      ok: false as const,
+      error:
+        "This link is invalid or expired. Subscribe again from the website footer if you still want the briefing.",
+    };
+  }
 
-  await db
-    .update(newsletterSubscribers)
-    .set({
-      confirmedAt: new Date(),
-      confirmTokenHash: null,
-      unsubscribedAt: null,
-    })
-    .where(eq(newsletterSubscribers.id, row.id));
+  // Keep the token so a second open (after Gmail/security scanners) still shows success.
+  if (!row.confirmedAt || row.unsubscribedAt) {
+    await db
+      .update(newsletterSubscribers)
+      .set({
+        confirmedAt: new Date(),
+        unsubscribedAt: null,
+      })
+      .where(eq(newsletterSubscribers.id, row.id));
+  }
 
   return { ok: true as const };
 }
