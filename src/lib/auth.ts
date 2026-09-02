@@ -3,7 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { getDb } from "@/db";
+import { getDb, withDbRetry } from "@/db";
 import { users } from "@/db/schema";
 import { authConfig } from "./auth.config";
 
@@ -22,27 +22,40 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(raw) {
-        const parsed = credentialsSchema.safeParse(raw);
+        const parsed = credentialsSchema.safeParse({
+          email: String(raw?.email ?? "")
+            .trim()
+            .toLowerCase(),
+          password: String(raw?.password ?? ""),
+        });
         if (!parsed.success) return null;
 
-        const db = getDb();
-        const [row] = await db
-          .select()
-          .from(users)
-          .where(eq(users.email, parsed.data.email.toLowerCase()))
-          .limit(1);
+        try {
+          const row = await withDbRetry(async () => {
+            const db = getDb();
+            const [user] = await db
+              .select()
+              .from(users)
+              .where(eq(users.email, parsed.data.email))
+              .limit(1);
+            return user ?? null;
+          });
 
-        if (!row || !row.active) return null;
+          if (!row || !row.active) return null;
 
-        const ok = await compare(parsed.data.password, row.passwordHash);
-        if (!ok) return null;
+          const ok = await compare(parsed.data.password, row.passwordHash);
+          if (!ok) return null;
 
-        return {
-          id: row.id,
-          email: row.email,
-          name: row.name,
-          role: row.role,
-        };
+          return {
+            id: row.id,
+            email: row.email,
+            name: row.name,
+            role: row.role,
+          };
+        } catch (err) {
+          console.error("[auth.authorize]", err);
+          return null;
+        }
       },
     }),
   ],
