@@ -78,7 +78,6 @@ export function ArticleEditorForm({
   const router = useRouter();
   const start = useMemo(() => ({ ...empty, ...initial }), [initial]);
   const [values, setValues] = useState(start);
-  const [slugLocked, setSlugLocked] = useState(mode === "edit");
   const [toast, setToast] = useState("");
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
@@ -96,7 +95,8 @@ export function ArticleEditorForm({
   ) {
     setValues((v) => {
       const next = { ...v, [key]: value };
-      if (key === "title" && !slugLocked && mode === "new") {
+      // Keep URL slug in sync with the title for new drafts.
+      if (key === "title" && mode === "new") {
         next.slug = slugify(String(value));
       }
       return next;
@@ -110,11 +110,12 @@ export function ArticleEditorForm({
   }
 
   function payload() {
+    const slug = values.slug.trim() || slugify(values.title);
     return {
       id: values.id,
       type: values.type,
       title: values.title,
-      slug: values.slug,
+      slug,
       dek: values.dek,
       location: values.location,
       byline: values.byline,
@@ -298,26 +299,18 @@ export function ArticleEditorForm({
             </label>
 
             <label>
-              Slug
-              <input
-                value={values.slug}
-                onChange={(e) => {
-                  setSlugLocked(true);
-                  set("slug", e.target.value);
-                }}
-                disabled={mode === "edit"}
-                required
-              />
-            </label>
-
-            <label>
-              Dek
+              Summary
               <input
                 value={values.dek}
                 onChange={(e) => set("dek", e.target.value)}
                 maxLength={280}
+                placeholder="One or two sentences under the headline"
               />
             </label>
+            <p className="article-editor__hint">
+              Optional — if you leave this blank, we’ll use the start of the
+              story when you publish.
+            </p>
 
             <label>
               Location

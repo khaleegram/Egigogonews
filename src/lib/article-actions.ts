@@ -15,15 +15,41 @@ import {
 import { auth } from "@/lib/auth";
 import { articleHref, wordCountFromHtml } from "@/lib/story";
 
+function slugify(title: string) {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 120);
+}
+
+function plainTextFromHtml(html: string) {
+  return html
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function summaryFromBody(html: string | null | undefined, max = 220) {
+  const text = plainTextFromHtml(html ?? "");
+  if (!text) return null;
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${(lastSpace > 80 ? cut.slice(0, lastSpace) : cut).trim()}…`;
+}
+
 const saveSchema = z.object({
   id: z.string().uuid().optional(),
   type: z.enum(["news", "opinion", "feature", "investigative"]),
   title: z.string().min(8).max(500),
   slug: z
     .string()
-    .min(3)
     .max(500)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    .optional()
+    .or(z.literal(""))
+    .transform((s) => s ?? ""),
   dek: z.string().max(280).optional().or(z.literal("")),
   location: z.string().max(255).optional().or(z.literal("")),
   byline: z.string().max(255).optional().or(z.literal("")),
@@ -90,20 +116,18 @@ function publishMissingFields(article: {
   bylineName: string | null;
 }): string[] {
   const missing: string[] = [];
-  if (!article.dek?.trim()) missing.push("dek (short summary under the headline)");
-  const bodyText = (article.body ?? "")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  if (!article.dek?.trim()) {
+    missing.push("summary (one or two sentences under the headline)");
+  }
+  const bodyText = plainTextFromHtml(article.body ?? "");
   const words = wordCountFromHtml(article.body ?? "");
   if (bodyText.length < 100 || words < 20) {
     missing.push(
-      `body (write at least ~20 words in the story — currently ${words} word${words === 1 ? "" : "s"})`,
+      `story body (write at least ~20 words — currently ${words} word${words === 1 ? "" : "s"})`,
     );
   }
   if (!article.categoryId) missing.push("category");
   if (!article.heroImageUrl?.trim()) missing.push("hero image");
-  // Hero alt falls back to title on save; don't block publish for it.
   if (!article.bylineName?.trim()) missing.push("byline (author name)");
   return missing;
 }
@@ -123,6 +147,15 @@ export async function saveArticleDraft(
   }
 
   const data = parsed.data;
+  const slug =
+    (data.slug && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(data.slug)
+      ? data.slug
+      : null) ||
+    slugify(data.title);
+  if (!slug || slug.length < 3) {
+    return { ok: false, error: "Title is too short to build a URL" };
+  }
+
   const categoryId = await categoryIdForSlug(data.categorySlug);
   if (!categoryId) return { ok: false, error: "Unknown category" };
 
@@ -132,7 +165,7 @@ export async function saveArticleDraft(
   const values = {
     type: data.type,
     title: data.title,
-    slug: data.slug,
+    slug,
     dek: data.dek || null,
     body: data.bodyHtml || null,
     categoryId,
@@ -280,6 +313,19 @@ export async function publishArticleNow(
     return { ok: false, error: "Title required" };
   }
 
+  const missingPre = publishMissingFields(row.article);
+  // Auto-fill summary from the story if they left it blank.
+  if (missingPre.includes("summary (one or two sentences under the headline)")) {
+    const autoDek = summaryFromBody(row.article.body);
+    if (autoDek) {
+      await db
+        .update(articles)
+        .set({ dek: autoDek, updatedAt: new Date() })
+        .where(eq(articles.id, id));
+      row.article.dek = autoDek;
+    }
+  }
+
   const missing = publishMissingFields(row.article);
   if (missing.length) {
     return {
@@ -350,6 +396,17 @@ export async function scheduleArticle(
       ok: false,
       error: "Only draft, in_review, or scheduled articles can be scheduled",
     };
+  }
+
+  if (!row.dek?.trim()) {
+    const autoDek = summaryFromBody(row.body);
+    if (autoDek) {
+      await db
+        .update(articles)
+        .set({ dek: autoDek, updatedAt: new Date() })
+        .where(eq(articles.id, id));
+      row.dek = autoDek;
+    }
   }
 
   const missing = publishMissingFields(row);
