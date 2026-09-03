@@ -33,16 +33,15 @@ export default function StaffGuidePage() {
       </header>
 
       <div className="staff-guide__hero">
-        <p className="staff-guide__eyebrow">Internal · not linked from the public site</p>
+        <p className="staff-guide__eyebrow">Internal staff manual</p>
         <h1 className="staff-guide__title">Egigogo staff manual</h1>
         <p className="staff-guide__lede">
-          Everything you need to install the phone app, log in, write, add
-          photos, publish, and put a story on the homepage banner. Bookmark this
-          page and share the link with your team.
+          How to install the phone app, sign in, write stories, add photos,
+          publish, and put a story on the homepage banner. Keep this page
+          bookmarked.
         </p>
         <p className="staff-guide__url">
-          Link to share:{" "}
-          <code>https://egigogonewspaper.com/staff-guide</code>
+          This guide: <code>/staff-guide</code>
         </p>
       </div>
 
@@ -61,57 +60,67 @@ export default function StaffGuidePage() {
         <main className="staff-guide__main">
           <section id="login" className="staff-guide__section">
             <h2>1. Sign in</h2>
+            <p>
+              The CMS is private. Opening <strong>Staff login</strong> or{" "}
+              <code>/cms</code> only takes you to the sign-in screen. You need
+              the email and password given to you by the newsroom — installing
+              the app alone does not grant access.
+            </p>
             <ol className="staff-guide__steps">
               <li>
                 Go to{" "}
                 <Link href="/login">
                   <code>/login</code>
-                </Link>{" "}
-                — or open the site menu (☰) and tap <strong>Staff login</strong>{" "}
+                </Link>
+                , or open the site menu (☰) and tap <strong>Staff login</strong>{" "}
                 at the top, or scroll the footer → <strong>Staff login</strong>.
               </li>
-              <li>Enter the email and password your admin gave you.</li>
+              <li>Enter your staff email and password.</li>
               <li>
-                You land in the <strong>CMS</strong> (content dashboard). On
-                phone, use the bottom tabs: Home, Articles, Media, Tips, More.
+                After sign-in you reach the <strong>CMS</strong>. On phone, use
+                the bottom tabs: Home, Articles, Media, Tips, More.
               </li>
             </ol>
             <div className="staff-guide__callout">
-              <strong>Phone app (PWA):</strong> the address bar may be hidden.
-              Use <strong>Staff login</strong> in the hamburger or footer — you
-              do not need to type a URL.
+              <strong>Phone app:</strong> the address bar may be hidden. Use{" "}
+              <strong>Staff login</strong> in the menu or footer — you do not
+              need to type a path.
             </div>
           </section>
 
           <section id="install" className="staff-guide__section">
             <h2>2. Install on your phone (PWA)</h2>
             <p>
-              Egigogo can sit on the home screen like an app. Whether Install
-              appears depends on the phone and browser — that is normal.
+              You can add Egigogo to your home screen like an app. Whether an
+              Install button appears depends on your phone and browser — that is
+              normal.
             </p>
             <div className="staff-guide__grid">
               <article className="staff-guide__card">
                 <h3>Android</h3>
                 <p>
-                  Open the site in <strong>Chrome</strong>. You should get an{" "}
-                  <strong>Install</strong> prompt or banner — tap it. Or use the
-                  browser menu → <strong>Install app</strong> /{" "}
+                  Open the site in <strong>Chrome</strong>. Use the{" "}
+                  <strong>Install</strong> prompt or banner if it appears, or
+                  the browser menu → <strong>Install app</strong> /{" "}
                   <strong>Add to Home screen</strong>.
                 </p>
               </article>
               <article className="staff-guide__card">
                 <h3>iPhone / iPad</h3>
                 <p>
-                  Apple does <strong>not</strong> show a one-tap Install button
-                  like Android. You must add it manually:
+                  There is no one-tap Install button like on Android. Add it
+                  manually:
                 </p>
                 <ol className="staff-guide__steps">
                   <li>
-                    Open <strong>https://egigogonewspaper.com</strong> in{" "}
-                    <strong>Safari</strong> (not Chrome, not WhatsApp /
-                    Instagram / Facebook’s in-app browser).
+                    Open the site homepage in <strong>Safari</strong> (not
+                    Chrome, and not the browser inside WhatsApp, Instagram, or
+                    Facebook).
                   </li>
-                  <li>Tap the <strong>Share</strong> button (square with arrow).</li>
+                  <li>
+                    Tap the <strong>Share</strong> button (square with an
+                    arrow).
+                  </li>
                   <li>
                     Tap <strong>Add to Home Screen</strong>, then Add.
                   </li>
@@ -119,19 +128,19 @@ export default function StaffGuidePage() {
               </article>
             </div>
             <div className="staff-guide__callout staff-guide__callout--warn">
-              <strong>If Install doesn’t show on iPhone:</strong> she is
-              probably not in Safari, or she opened the link inside another app.
-              Copy the site URL → open Safari → paste → then Share → Add to Home
-              Screen.
+              <strong>If Install does not appear on iPhone:</strong> open the
+              site in <strong>Safari</strong> directly. Links opened inside
+              other apps often will not allow Add to Home Screen.
             </div>
             <ul className="staff-guide__bullets">
               <li>
-                Already installed, or tapped “Not now” before — the banner may
-                stay hidden.
+                If you already installed the app, or dismissed the install
+                banner earlier, the banner may stay hidden.
               </li>
               <li>
-                After install, use <strong>Staff login</strong> in the menu or
-                footer to reach the CMS (no address bar on some phones).
+                After install, sign in with <strong>Staff login</strong> when
+                you need the CMS. Readers without a staff account only see the
+                public newspaper.
               </li>
             </ul>
           </section>
@@ -214,8 +223,8 @@ export default function StaffGuidePage() {
               </li>
               <li>
                 Set a <strong>Cover photo</strong> on the right (see Photos
-                below). This is required if you want your picture on the site —
-                not just inside the text.
+                below). This is what appears on the homepage and at the top of
+                the story — not only a picture inside the text.
               </li>
               <li>
                 Click <strong>Save</strong> (or Save draft). Always save before
@@ -239,12 +248,13 @@ export default function StaffGuidePage() {
                 <h3>Cover photo (one per story)</h3>
                 <p>
                   The big image on the <strong>homepage</strong>, story{" "}
-                  <strong>cards</strong>, and the <strong>top of the article</strong>.
+                  <strong>cards</strong>, and the{" "}
+                  <strong>top of the article</strong>.
                 </p>
                 <p>
                   In the editor sidebar: <strong>Cover photo</strong> →{" "}
-                  <strong>Add cover photo</strong> → upload or pick from library →{" "}
-                  <strong>Save</strong>.
+                  <strong>Add cover photo</strong> → upload or pick from library
+                  → <strong>Save</strong>.
                 </p>
               </article>
               <article className="staff-guide__card">
@@ -261,10 +271,11 @@ export default function StaffGuidePage() {
               </article>
             </div>
             <div className="staff-guide__callout staff-guide__callout--warn">
-              <strong>Why the wrong picture showed up:</strong> uploading only
-              into the story text (or only into Media) does <em>not</em> set the
-              cover. Without a cover, the site used a blank placeholder. Always
-              set <strong>Cover photo</strong>, then Save.
+              <strong>If the wrong picture shows on the site:</strong> uploading
+              only into the story text (or only into Media) does{" "}
+              <em>not</em> set the cover. Without a cover, the site shows a
+              blank placeholder. Always set <strong>Cover photo</strong>, then
+              Save.
             </div>
           </section>
 
@@ -282,9 +293,15 @@ export default function StaffGuidePage() {
               <li>Save / publish.</li>
             </ol>
             <ul className="staff-guide__bullets">
-              <li>Up to about <strong>3</strong> featured stories rotate in the banner.</li>
+              <li>
+                Up to about <strong>3</strong> featured stories rotate in the
+                banner.
+              </li>
               <li>Newest featured stories appear first.</li>
-              <li>Featured stories are kept out of the “Latest” row so they don’t repeat.</li>
+              <li>
+                Featured stories are kept out of the “Latest” row so they don’t
+                repeat.
+              </li>
             </ul>
           </section>
 
@@ -321,8 +338,7 @@ export default function StaffGuidePage() {
             <p>
               After a story is <strong>published</strong>, the article editor
               shows share buttons (WhatsApp, Facebook, X, copy link, view on
-              site). Those links go to the <strong>public</strong> story URL —
-              the one readers open.
+              site). Those open the public story page readers see.
             </p>
           </section>
 
@@ -400,17 +416,24 @@ export default function StaffGuidePage() {
               <div>
                 <dt>Can’t install on iPhone</dt>
                 <dd>
-                  Use <strong>Safari</strong> only → Share →{" "}
+                  Use <strong>Safari</strong> → Share →{" "}
                   <strong>Add to Home Screen</strong>. Chrome and in-app
-                  browsers (WhatsApp, Instagram, Facebook) usually won’t offer a
-                  proper install.
+                  browsers (WhatsApp, Instagram, Facebook) usually will not
+                  allow a proper install.
                 </dd>
               </div>
               <div>
                 <dt>Can’t find login on the phone app</dt>
                 <dd>
                   Open ☰ → <strong>Staff login</strong> (first item), or footer →
-                  Staff login.
+                  Staff login. You still need your staff password.
+                </dd>
+              </div>
+              <div>
+                <dt>Someone opened CMS / Staff login without an account</dt>
+                <dd>
+                  They only see the login form. Without a staff account they
+                  cannot enter the dashboard.
                 </dd>
               </div>
               <div>
@@ -430,7 +453,7 @@ export default function StaffGuidePage() {
           <section className="staff-guide__section staff-guide__section--end">
             <h2>Quick start</h2>
             <ol className="staff-guide__steps">
-              <li>Login → New article</li>
+              <li>Sign in → New article</li>
               <li>Title + category + story text</li>
               <li>Cover photo → Save</li>
               <li>Publish (or submit for review)</li>
@@ -444,7 +467,7 @@ export default function StaffGuidePage() {
                 Open CMS
               </Link>
               <Link href="/" className="btn btn--ghost">
-                View public site
+                View site
               </Link>
             </div>
           </section>
@@ -453,8 +476,7 @@ export default function StaffGuidePage() {
 
       <footer className="staff-guide__foot">
         <p>
-          Egigogo Newspaper · staff manual ·{" "}
-          <code>/staff-guide</code> · not listed in public navigation
+          Egigogo Newspaper · internal staff manual · <code>/staff-guide</code>
         </p>
       </footer>
     </div>
