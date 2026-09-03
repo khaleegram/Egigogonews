@@ -259,10 +259,10 @@ export async function saveArticleDraft(
         causeBlob.includes("duplicate key") ||
         causeBlob.includes("unique");
       if (!isSlugClash) throw firstErr;
-      // Auto-unique: title-2, title-3…
+      // Same title is allowed — only the URL must be unique. Append a short suffix silently.
       let saved = false;
-      for (let n = 2; n <= 20; n++) {
-        const next = `${slug.slice(0, 110)}-${n}`;
+      for (let n = 2; n <= 30; n++) {
+        const next = `${slug.slice(0, 100)}-${n}`;
         try {
           [created] = await insertWithSlug(next);
           saved = true;
@@ -270,6 +270,11 @@ export async function saveArticleDraft(
         } catch {
           /* try next */
         }
+      }
+      if (!saved) {
+        const fallback = `${slug.slice(0, 100)}-${Date.now().toString(36)}`;
+        [created] = await insertWithSlug(fallback);
+        saved = true;
       }
       if (!saved) throw firstErr;
     }

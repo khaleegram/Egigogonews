@@ -23,7 +23,7 @@ export function publicActionError(
     blob.includes("unique") ||
     blob.includes("duplicate key")
   ) {
-    return "An article with a similar title already exists. Change the title slightly and save again.";
+    return "Could not save because of a URL conflict. Try saving again.";
   }
   if (
     blob.includes("foreign key") ||
