@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { ArticleEditorForm } from "@/components/cms/article-editor-form";
+import { CmsShare } from "@/components/cms/cms-share";
 import { getArticleForCms } from "@/lib/articles";
 import { requireCmsPage } from "@/lib/cms-auth";
 
@@ -19,6 +20,12 @@ export default async function EditArticlePage({ params }: Props) {
   return (
     <>
       <h1>Edit article</h1>
+      <CmsShare
+        title={article.title}
+        categorySlug={category.slug}
+        articleSlug={article.slug}
+        status={article.status}
+      />
       <ArticleEditorForm
         mode="edit"
         role={staff.role}

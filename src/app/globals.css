@@ -1710,6 +1710,59 @@ iframe.goog-te-banner-frame {
   overflow-x: clip;
 }
 
+/* ── CMS share bar ─────────────────────────────────────────── */
+.cms-share {
+  margin: 0 0 1.5rem;
+  padding: 0.85rem 1rem;
+  background: var(--paper-elevated, var(--paper));
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.cms-share--unpublished .cms-share__row {
+  display: none;
+}
+
+.cms-share__label {
+  margin: 0 0 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.cms-share__note {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+}
+
+.cms-share__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cms-share__btn {
+  border: 1px solid var(--line);
+  background: var(--paper);
+  padding: 0.42rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  border-radius: 4px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.cms-share__btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .cms-table-wrap {
   display: block;
   width: 100%;
