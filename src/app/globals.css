@@ -1931,6 +1931,24 @@ iframe.goog-te-banner-frame {
   line-height: 1.4;
 }
 
+.article-editor__more {
+  margin: 0.5rem 0 1rem;
+  border: 1px solid var(--line);
+  padding: 0.65rem 0.75rem;
+}
+
+.article-editor__more summary {
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+.article-editor__more[open] summary {
+  margin-bottom: 0.75rem;
+  color: var(--ink);
+}
+
 .article-editor__workflow {
   display: grid;
   gap: 0.75rem;
