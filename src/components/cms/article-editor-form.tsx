@@ -582,7 +582,7 @@ export function ArticleEditorForm({
       <MediaPickerModal
         open={picker === "hero" || picker === "body"}
         kind="image"
-        title={picker === "body" ? "Insert image" : "Hero image"}
+        title={picker === "body" ? "Insert image in story" : "Cover photo"}
         onClose={() => setPicker(null)}
         onPick={(item) => {
           if (picker === "hero") {
