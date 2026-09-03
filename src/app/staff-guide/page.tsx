@@ -3,15 +3,16 @@ import { BrandLogo } from "@/components/site/brand-logo";
 
 const TOC = [
   { id: "login", label: "1. Sign in" },
-  { id: "roles", label: "2. Who can do what" },
-  { id: "publish", label: "3. Publish a story" },
-  { id: "photos", label: "4. Photos" },
-  { id: "featured", label: "5. Homepage banner" },
-  { id: "workflow", label: "6. Draft → publish" },
-  { id: "share", label: "7. Share a story" },
-  { id: "tools", label: "8. Other CMS tools" },
-  { id: "limits", label: "9. Limits & formats" },
-  { id: "fixes", label: "10. Common problems" },
+  { id: "install", label: "2. Install on your phone" },
+  { id: "roles", label: "3. Who can do what" },
+  { id: "publish", label: "4. Publish a story" },
+  { id: "photos", label: "5. Photos" },
+  { id: "featured", label: "6. Homepage banner" },
+  { id: "workflow", label: "7. Draft → publish" },
+  { id: "share", label: "8. Share a story" },
+  { id: "tools", label: "9. Other CMS tools" },
+  { id: "limits", label: "10. Limits & formats" },
+  { id: "fixes", label: "11. Common problems" },
 ] as const;
 
 export default function StaffGuidePage() {
@@ -35,9 +36,9 @@ export default function StaffGuidePage() {
         <p className="staff-guide__eyebrow">Internal · not linked from the public site</p>
         <h1 className="staff-guide__title">Egigogo staff manual</h1>
         <p className="staff-guide__lede">
-          Everything you need to log in, write, add photos, publish, and put a
-          story on the homepage banner. Bookmark this page and share the link
-          with your team.
+          Everything you need to install the phone app, log in, write, add
+          photos, publish, and put a story on the homepage banner. Bookmark this
+          page and share the link with your team.
         </p>
         <p className="staff-guide__url">
           Link to share:{" "}
@@ -82,8 +83,61 @@ export default function StaffGuidePage() {
             </div>
           </section>
 
+          <section id="install" className="staff-guide__section">
+            <h2>2. Install on your phone (PWA)</h2>
+            <p>
+              Egigogo can sit on the home screen like an app. Whether Install
+              appears depends on the phone and browser — that is normal.
+            </p>
+            <div className="staff-guide__grid">
+              <article className="staff-guide__card">
+                <h3>Android</h3>
+                <p>
+                  Open the site in <strong>Chrome</strong>. You should get an{" "}
+                  <strong>Install</strong> prompt or banner — tap it. Or use the
+                  browser menu → <strong>Install app</strong> /{" "}
+                  <strong>Add to Home screen</strong>.
+                </p>
+              </article>
+              <article className="staff-guide__card">
+                <h3>iPhone / iPad</h3>
+                <p>
+                  Apple does <strong>not</strong> show a one-tap Install button
+                  like Android. You must add it manually:
+                </p>
+                <ol className="staff-guide__steps">
+                  <li>
+                    Open <strong>https://egigogonewspaper.com</strong> in{" "}
+                    <strong>Safari</strong> (not Chrome, not WhatsApp /
+                    Instagram / Facebook’s in-app browser).
+                  </li>
+                  <li>Tap the <strong>Share</strong> button (square with arrow).</li>
+                  <li>
+                    Tap <strong>Add to Home Screen</strong>, then Add.
+                  </li>
+                </ol>
+              </article>
+            </div>
+            <div className="staff-guide__callout staff-guide__callout--warn">
+              <strong>If Install doesn’t show on iPhone:</strong> she is
+              probably not in Safari, or she opened the link inside another app.
+              Copy the site URL → open Safari → paste → then Share → Add to Home
+              Screen.
+            </div>
+            <ul className="staff-guide__bullets">
+              <li>
+                Already installed, or tapped “Not now” before — the banner may
+                stay hidden.
+              </li>
+              <li>
+                After install, use <strong>Staff login</strong> in the menu or
+                footer to reach the CMS (no address bar on some phones).
+              </li>
+            </ul>
+          </section>
+
           <section id="roles" className="staff-guide__section">
-            <h2>2. Who can do what</h2>
+            <h2>3. Who can do what</h2>
             <p>
               Your account has a role. The menu only shows what you are allowed
               to use.
@@ -144,7 +198,7 @@ export default function StaffGuidePage() {
           </section>
 
           <section id="publish" className="staff-guide__section">
-            <h2>3. Publish a story (checklist)</h2>
+            <h2>4. Publish a story (checklist)</h2>
             <ol className="staff-guide__steps">
               <li>
                 CMS → <strong>Articles</strong> → <strong>New article</strong>{" "}
@@ -179,7 +233,7 @@ export default function StaffGuidePage() {
           </section>
 
           <section id="photos" className="staff-guide__section">
-            <h2>4. Photos — cover vs story images</h2>
+            <h2>5. Photos — cover vs story images</h2>
             <div className="staff-guide__grid">
               <article className="staff-guide__card">
                 <h3>Cover photo (one per story)</h3>
@@ -215,7 +269,7 @@ export default function StaffGuidePage() {
           </section>
 
           <section id="featured" className="staff-guide__section">
-            <h2>5. Homepage banner (featured)</h2>
+            <h2>6. Homepage banner (featured)</h2>
             <p>
               Publishing does <strong>not</strong> automatically put a story in
               the big rotating banner at the top of the homepage.
@@ -235,7 +289,7 @@ export default function StaffGuidePage() {
           </section>
 
           <section id="workflow" className="staff-guide__section">
-            <h2>6. Draft → review → publish</h2>
+            <h2>7. Draft → review → publish</h2>
             <div className="staff-guide__flow">
               <div>
                 <strong>Draft</strong>
@@ -263,7 +317,7 @@ export default function StaffGuidePage() {
           </section>
 
           <section id="share" className="staff-guide__section">
-            <h2>7. Share a published story</h2>
+            <h2>8. Share a published story</h2>
             <p>
               After a story is <strong>published</strong>, the article editor
               shows share buttons (WhatsApp, Facebook, X, copy link, view on
@@ -273,7 +327,7 @@ export default function StaffGuidePage() {
           </section>
 
           <section id="tools" className="staff-guide__section">
-            <h2>8. Other CMS tools</h2>
+            <h2>9. Other CMS tools</h2>
             <dl className="staff-guide__dl">
               <div>
                 <dt>Media</dt>
@@ -302,7 +356,7 @@ export default function StaffGuidePage() {
           </section>
 
           <section id="limits" className="staff-guide__section">
-            <h2>9. Limits &amp; formats</h2>
+            <h2>10. Limits &amp; formats</h2>
             <ul className="staff-guide__bullets">
               <li>
                 <strong>Images:</strong> JPEG, PNG, or WebP — max{" "}
@@ -327,7 +381,7 @@ export default function StaffGuidePage() {
           </section>
 
           <section id="fixes" className="staff-guide__section">
-            <h2>10. Common problems</h2>
+            <h2>11. Common problems</h2>
             <dl className="staff-guide__dl">
               <div>
                 <dt>Blank / “no cover” image on the site</dt>
@@ -341,6 +395,15 @@ export default function StaffGuidePage() {
                 <dd>
                   Tick <strong>Featured on home</strong>, then Save. Publish ≠
                   featured.
+                </dd>
+              </div>
+              <div>
+                <dt>Can’t install on iPhone</dt>
+                <dd>
+                  Use <strong>Safari</strong> only → Share →{" "}
+                  <strong>Add to Home Screen</strong>. Chrome and in-app
+                  browsers (WhatsApp, Instagram, Facebook) usually won’t offer a
+                  proper install.
                 </dd>
               </div>
               <div>
