@@ -4,6 +4,7 @@ import { desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { media } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { publicActionError } from "@/lib/public-error";
 import { r2Configured, uploadToR2 } from "@/lib/r2";
 
 const IMAGE_TYPES = new Set([
@@ -112,15 +113,11 @@ export async function uploadMediaAction(
     if (!row) return { ok: false, error: "Upload saved to R2 but DB insert failed." };
     return { ok: true, id: row.id, url: row.url, kind: row.kind, alt: row.alt };
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Upload failed";
-    if (/media_uploaded_by_users_id_fk|foreign key/i.test(msg)) {
-      return {
-        ok: false,
-        error:
-          "Your session is out of date (user not in this database). Sign out, sign back in, then upload again.",
-      };
-    }
-    return { ok: false, error: msg };
+    console.error("[uploadMedia]", err);
+    return {
+      ok: false,
+      error: publicActionError(err, "Upload failed. Please try again."),
+    };
   }
 }
 

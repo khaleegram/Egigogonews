@@ -7,6 +7,7 @@ import { getDb } from "@/db";
 import { articles, categories } from "@/db/schema";
 import { RESERVED_PATH_SEGMENTS } from "@/lib/constants";
 import { isStaff, requireStaff } from "@/lib/cms-auth";
+import { publicActionError } from "@/lib/public-error";
 
 function slugify(name: string) {
   return name
@@ -79,11 +80,11 @@ export async function createCategory(raw: z.infer<typeof createSchema>) {
       active: true,
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Create failed";
-    if (msg.includes("unique")) {
-      return { ok: false as const, error: "Slug already in use" };
-    }
-    return { ok: false as const, error: msg };
+    console.error("[createCategory]", err);
+    return {
+      ok: false as const,
+      error: publicActionError(err, "Could not create category."),
+    };
   }
 
   revalidatePath("/cms/categories");
@@ -149,11 +150,11 @@ export async function updateCategory(raw: z.infer<typeof updateSchema>) {
       })
       .where(eq(categories.id, parsed.data.id));
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Update failed";
-    if (msg.includes("unique")) {
-      return { ok: false as const, error: "Slug already in use" };
-    }
-    return { ok: false as const, error: msg };
+    console.error("[updateCategory]", err);
+    return {
+      ok: false as const,
+      error: publicActionError(err, "Could not update category."),
+    };
   }
 
   revalidatePath("/cms/categories");

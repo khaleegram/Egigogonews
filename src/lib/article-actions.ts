@@ -13,6 +13,7 @@ import {
   users,
 } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { publicActionError } from "@/lib/public-error";
 import { articleHref, wordCountFromHtml } from "@/lib/story";
 
 function slugify(title: string) {
@@ -137,6 +138,9 @@ export async function saveArticleDraft(
 ): Promise<ArticleActionResult> {
   const staff = await requireStaffSession();
   if (!staff) return { ok: false, error: "Sign in to save articles." };
+  const authorId = staff.id;
+  const staffName = staff.name;
+  const staffRole = staff.role;
 
   const parsed = saveSchema.safeParse(raw);
   if (!parsed.success) {
@@ -147,7 +151,7 @@ export async function saveArticleDraft(
   }
 
   const data = parsed.data;
-  const slug =
+  let slug =
     (data.slug && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(data.slug)
       ? data.slug
       : null) ||
@@ -159,17 +163,18 @@ export async function saveArticleDraft(
   const categoryId = await categoryIdForSlug(data.categorySlug);
   if (!categoryId) return { ok: false, error: "Unknown category" };
 
-  const canFeature = staff.role === "admin" || staff.role === "editor";
+  const canFeature = staffRole === "admin" || staffRole === "editor";
+  const dek = (data.dek || "").trim().slice(0, 280) || null;
 
   const db = getDb();
   const values = {
     type: data.type,
     title: data.title,
     slug,
-    dek: data.dek || null,
+    dek,
     body: data.bodyHtml || null,
     categoryId,
-    bylineName: data.byline || staff.name,
+    bylineName: data.byline || staffName,
     location: data.location || null,
     videoEmbedUrl: data.videoEmbedUrl || null,
     heroImageUrl: data.heroImageUrl || null,
@@ -190,18 +195,20 @@ export async function saveArticleDraft(
         .where(eq(articles.id, data.id))
         .limit(1);
       if (!existing) return { ok: false, error: "Article not found" };
-      if (staff.role === "reporter" && existing.authorId !== staff.id) {
+      if (staffRole === "reporter" && existing.authorId !== authorId) {
         return { ok: false, error: "You can only edit your own articles" };
       }
-      if (existing.status === "published" && staff.role === "reporter") {
+      if (existing.status === "published" && staffRole === "reporter") {
         return { ok: false, error: "Reporters cannot edit published articles" };
       }
 
-      const { featured, sponsored, ...rest } = values;
+      // Keep existing slug on edit so URL doesn't thrash; only use new title slug if empty.
+      const { featured, sponsored, slug: _ignoreSlug, ...rest } = values;
       await db
         .update(articles)
         .set({
           ...rest,
+          slug: existing.slug,
           ...(canFeature
             ? { featured: featured ?? false, sponsored: sponsored ?? false }
             : {}),
@@ -218,26 +225,64 @@ export async function saveArticleDraft(
       return { ok: true, id: data.id };
     }
 
-    const [created] = await db
-      .insert(articles)
-      .values({
-        ...values,
-        featured: canFeature ? (data.featured ?? false) : false,
-        sponsored: canFeature ? (data.sponsored ?? false) : false,
-        authorId: staff.id,
-        status: "draft",
-      })
-      .returning();
+    async function insertWithSlug(candidate: string) {
+      return db
+        .insert(articles)
+        .values({
+          ...values,
+          slug: candidate,
+          featured: canFeature ? (data.featured ?? false) : false,
+          sponsored: canFeature ? (data.sponsored ?? false) : false,
+          authorId,
+          status: "draft",
+        })
+        .returning();
+    }
+
+    let created;
+    try {
+      [created] = await insertWithSlug(slug);
+    } catch (firstErr) {
+      const causeBlob = (() => {
+        const parts: string[] = [];
+        let cur: unknown = firstErr;
+        for (let i = 0; i < 4 && cur; i++) {
+          if (cur instanceof Error) {
+            parts.push(cur.message);
+            cur = (cur as Error & { cause?: unknown }).cause;
+          } else break;
+        }
+        return parts.join("\n").toLowerCase();
+      })();
+      const isSlugClash =
+        causeBlob.includes("articles_slug") ||
+        causeBlob.includes("duplicate key") ||
+        causeBlob.includes("unique");
+      if (!isSlugClash) throw firstErr;
+      // Auto-unique: title-2, title-3…
+      let saved = false;
+      for (let n = 2; n <= 20; n++) {
+        const next = `${slug.slice(0, 110)}-${n}`;
+        try {
+          [created] = await insertWithSlug(next);
+          saved = true;
+          break;
+        } catch {
+          /* try next */
+        }
+      }
+      if (!saved) throw firstErr;
+    }
 
     if (!created) return { ok: false, error: "Could not create article" };
     revalidatePath("/cms/articles");
     return { ok: true, id: created.id };
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Save failed";
-    if (msg.includes("unique") || msg.includes("articles_slug")) {
-      return { ok: false, error: "Slug already in use" };
-    }
-    return { ok: false, error: msg };
+    console.error("[saveArticleDraft]", err);
+    return {
+      ok: false,
+      error: publicActionError(err, "Could not save the article. Please try again."),
+    };
   }
 }
 
