@@ -70,6 +70,12 @@ export async function uploadMediaAction(
     if (file.size > AUDIO_MAX) {
       return { ok: false, error: "Audio must be 25MB or smaller." };
     }
+  } else if (/image\/heic|image\/heif|\.heic$/i.test(`${type} ${file.name}`)) {
+    return {
+      ok: false,
+      error:
+        "iPhone HEIC photos aren’t supported. In Photos, share/export as JPEG, then upload.",
+    };
   } else {
     return {
       ok: false,

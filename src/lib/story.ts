@@ -23,8 +23,8 @@ export type Story = {
   publishedAt?: Date | null;
 };
 
-const PLACEHOLDER_IMAGE =
-  "https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?auto=format&fit=crop&w=1200&q=80";
+/** Used only when a story has no cover photo set in the CMS. */
+const PLACEHOLDER_IMAGE = "/brand/story-placeholder.jpg";
 
 export function articleHref(categorySlug: string, slug: string) {
   return `/${categorySlug}/${slug}`;

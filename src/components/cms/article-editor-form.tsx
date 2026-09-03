@@ -344,22 +344,31 @@ export function ArticleEditorForm({
             </label>
 
             <div className="article-editor__media-block">
-              <p className="article-editor__label">Main photo</p>
+              <p className="article-editor__label">Cover photo</p>
+              <p className="article-editor__hint">
+                This is the big image on the homepage, cards, and top of the
+                story. A photo only inside the story text does not count.
+              </p>
               {values.heroImageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={values.heroImageUrl}
-                  alt={values.heroImageAlt || values.title || "Hero"}
+                  alt={values.heroImageAlt || values.title || "Cover"}
                   className="article-editor__hero-preview"
                 />
-              ) : null}
+              ) : (
+                <p className="article-editor__warn">
+                  No cover photo — the site will show a blank placeholder until
+                  you add one.
+                </p>
+              )}
               <div className="article-editor__actions">
                 <button
                   type="button"
-                  className="btn btn--ghost"
+                  className="btn"
                   onClick={() => setPicker("hero")}
                 >
-                  Upload / library
+                  {values.heroImageUrl ? "Change cover" : "Add cover photo"}
                 </button>
                 {values.heroImageUrl ? (
                   <button
@@ -576,11 +585,16 @@ export function ArticleEditorForm({
         title={picker === "body" ? "Insert image" : "Hero image"}
         onClose={() => setPicker(null)}
         onPick={(item) => {
-            if (picker === "hero") {
+          if (picker === "hero") {
             set("heroImageUrl", item.url);
             set("heroImageAlt", values.title || item.alt || "");
           } else if (picker === "body") {
             insertImageRef.current?.(item.url, item.alt ?? "");
+            // If they never set a cover, first body image becomes the cover.
+            if (!values.heroImageUrl) {
+              set("heroImageUrl", item.url);
+              set("heroImageAlt", values.title || item.alt || "");
+            }
           }
         }}
       />

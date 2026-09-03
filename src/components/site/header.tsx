@@ -374,6 +374,12 @@ export function SiteHeader() {
               {l.label}
             </Link>
           ))}
+          <Link
+            href="/login"
+            className={pathname === "/login" ? "is-active" : undefined}
+          >
+            Staff login
+          </Link>
         </nav>
       </div>
 

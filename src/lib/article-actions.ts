@@ -41,6 +41,15 @@ function summaryFromBody(html: string | null | undefined, max = 220) {
   return `${(lastSpace > 80 ? cut.slice(0, lastSpace) : cut).trim()}…`;
 }
 
+/** First <img src> in the story body — used as cover when none was set. */
+function firstImageFromHtml(html: string | null | undefined) {
+  if (!html) return null;
+  const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  const src = match?.[1]?.trim();
+  if (!src || src.startsWith("data:")) return null;
+  return src.slice(0, 2000);
+}
+
 const saveSchema = z.object({
   id: z.string().uuid().optional(),
   type: z.enum(["news", "opinion", "feature", "investigative"]),
@@ -157,6 +166,9 @@ export async function saveArticleDraft(
 
   const canFeature = staffRole === "admin" || staffRole === "editor";
   const dek = (data.dek || "").trim().slice(0, 280) || null;
+  const heroFromForm = (data.heroImageUrl || "").trim();
+  const heroImageUrl =
+    heroFromForm || firstImageFromHtml(data.bodyHtml) || null;
 
   const db = getDb();
   const values = {
@@ -169,8 +181,8 @@ export async function saveArticleDraft(
     bylineName: data.byline || staffName,
     location: data.location || null,
     videoEmbedUrl: data.videoEmbedUrl || null,
-    heroImageUrl: data.heroImageUrl || null,
-    heroImageAlt: data.heroImageUrl ? data.title : null,
+    heroImageUrl,
+    heroImageAlt: heroImageUrl ? data.title : null,
     audioUrl: data.audioUrl || null,
     featured: canFeature ? (data.featured ?? false) : undefined,
     sponsored: canFeature ? (data.sponsored ?? false) : undefined,

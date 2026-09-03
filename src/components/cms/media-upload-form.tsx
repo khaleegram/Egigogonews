@@ -26,10 +26,10 @@ export function MediaUploadForm({
 
   const accept =
     kind === "image"
-      ? "image/jpeg,image/png,image/webp"
+      ? "image/jpeg,image/jpg,image/png,image/webp"
       : kind === "audio"
         ? "audio/mpeg,audio/mp4,.mp3,.m4a"
-        : "image/jpeg,image/png,image/webp,audio/mpeg,audio/mp4,.mp3,.m4a";
+        : "image/jpeg,image/jpg,image/png,image/webp,audio/mpeg,audio/mp4,.mp3,.m4a";
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
