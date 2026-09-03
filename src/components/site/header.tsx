@@ -365,6 +365,16 @@ export function SiteHeader() {
         hidden={!open}
       >
         <nav className="site-nav-drawer__nav" aria-label="Mobile primary">
+          <Link
+            href="/login"
+            className={
+              pathname === "/login" || pathname.startsWith("/cms")
+                ? "site-nav-drawer__login is-active"
+                : "site-nav-drawer__login"
+            }
+          >
+            Staff login
+          </Link>
           {links.map((l) => (
             <Link
               key={l.href}
@@ -374,12 +384,6 @@ export function SiteHeader() {
               {l.label}
             </Link>
           ))}
-          <Link
-            href="/login"
-            className={pathname === "/login" ? "is-active" : undefined}
-          >
-            Staff login
-          </Link>
         </nav>
       </div>
 
