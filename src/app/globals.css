@@ -803,6 +803,19 @@ iframe.goog-te-banner-frame {
     gap: 0.15rem;
   }
 
+  .site-nav-drawer__login {
+    margin-bottom: 0.55rem;
+    border: 1px solid color-mix(in srgb, white 22%, transparent);
+    background: color-mix(in srgb, var(--accent) 42%, #0a100e);
+    color: #ffffff !important;
+  }
+
+  .site-nav-drawer__login:hover,
+  .site-nav-drawer__login.is-active {
+    background: color-mix(in srgb, var(--accent) 70%, #0a100e) !important;
+    color: #ffffff !important;
+  }
+
   .site-nav-drawer__nav a {
     display: block;
     padding: 0.8rem 0.85rem;
