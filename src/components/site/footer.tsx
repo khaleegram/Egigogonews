@@ -29,6 +29,9 @@ export function SiteFooter() {
             <li>
               <Link href="/tips">Send a tip</Link>
             </li>
+            <li>
+              <Link href="/login">Staff login</Link>
+            </li>
           </ul>
         </div>
 
