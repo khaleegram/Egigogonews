@@ -14,7 +14,7 @@ import {
 } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { publicActionError } from "@/lib/public-error";
-import { articleHref, wordCountFromHtml } from "@/lib/story";
+import { articleHref } from "@/lib/story";
 
 function slugify(title: string) {
   return title
@@ -44,7 +44,7 @@ function summaryFromBody(html: string | null | undefined, max = 220) {
 const saveSchema = z.object({
   id: z.string().uuid().optional(),
   type: z.enum(["news", "opinion", "feature", "investigative"]),
-  title: z.string().min(8).max(500),
+  title: z.string().min(1).max(500),
   slug: z
     .string()
     .max(500)
@@ -109,27 +109,14 @@ function revalidateArticlePaths(
 }
 
 function publishMissingFields(article: {
-  dek: string | null;
-  body: string | null;
+  title: string | null;
   categoryId: string;
-  heroImageUrl: string | null;
-  heroImageAlt: string | null;
-  bylineName: string | null;
 }): string[] {
   const missing: string[] = [];
-  if (!article.dek?.trim()) {
-    missing.push("summary (one or two sentences under the headline)");
-  }
-  const bodyText = plainTextFromHtml(article.body ?? "");
-  const words = wordCountFromHtml(article.body ?? "");
-  if (bodyText.length < 100 || words < 20) {
-    missing.push(
-      `story body (write at least ~20 words — currently ${words} word${words === 1 ? "" : "s"})`,
-    );
-  }
+  // Only block on things the site literally cannot render without.
+  // No invented editorial rules (word counts, hero required, etc.).
+  if (!article.title?.trim()) missing.push("title");
   if (!article.categoryId) missing.push("category");
-  if (!article.heroImageUrl?.trim()) missing.push("hero image");
-  if (!article.bylineName?.trim()) missing.push("byline (author name)");
   return missing;
 }
 
@@ -144,9 +131,14 @@ export async function saveArticleDraft(
 
   const parsed = saveSchema.safeParse(raw);
   if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    const path = issue?.path?.[0];
+    if (path === "title") {
+      return { ok: false, error: "Add a title." };
+    }
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: "Check the form and try again.",
     };
   }
 
@@ -306,7 +298,7 @@ export async function submitArticleForReview(
   if (row.status !== "draft") {
     return { ok: false, error: "Only drafts can be submitted for review" };
   }
-  if (!row.title || row.title.length < 8) {
+  if (row.title.length < 1) {
     return { ok: false, error: "Title too short" };
   }
 
@@ -359,28 +351,36 @@ export async function publishArticleNow(
     .limit(1);
 
   if (!row) return { ok: false, error: "Article not found" };
-  if (!row.article.title || row.article.title.length < 8) {
-    return { ok: false, error: "Title required" };
+  if (!row.article.title?.trim()) {
+    return { ok: false, error: "Add a title before publishing." };
   }
 
-  const missingPre = publishMissingFields(row.article);
-  // Auto-fill summary from the story if they left it blank.
-  if (missingPre.includes("summary (one or two sentences under the headline)")) {
+  const patch: {
+    dek?: string;
+    bylineName?: string;
+    updatedAt: Date;
+  } = { updatedAt: new Date() };
+
+  if (!row.article.dek?.trim()) {
     const autoDek = summaryFromBody(row.article.body);
     if (autoDek) {
-      await db
-        .update(articles)
-        .set({ dek: autoDek, updatedAt: new Date() })
-        .where(eq(articles.id, id));
+      patch.dek = autoDek;
       row.article.dek = autoDek;
     }
+  }
+  if (!row.article.bylineName?.trim()) {
+    patch.bylineName = staff.name;
+    row.article.bylineName = staff.name;
+  }
+  if (patch.dek || patch.bylineName) {
+    await db.update(articles).set(patch).where(eq(articles.id, id));
   }
 
   const missing = publishMissingFields(row.article);
   if (missing.length) {
     return {
       ok: false,
-      error: `Can't publish yet — ${missing.join("; ")}.`,
+      error: `Can't publish yet — add a ${missing.join(" and ")}.`,
     };
   }
 
@@ -435,7 +435,7 @@ export async function scheduleArticle(
 
   const publishAt = new Date(publishAtIso);
   if (Number.isNaN(publishAt.getTime()) || publishAt.getTime() <= Date.now()) {
-    return { ok: false, error: "publishAt must be a future datetime" };
+    return { ok: false, error: "Pick a future date and time to schedule." };
   }
 
   const db = getDb();
@@ -448,6 +448,10 @@ export async function scheduleArticle(
     };
   }
 
+  if (!row.title?.trim()) {
+    return { ok: false, error: "Add a title before scheduling." };
+  }
+
   if (!row.dek?.trim()) {
     const autoDek = summaryFromBody(row.body);
     if (autoDek) {
@@ -458,12 +462,19 @@ export async function scheduleArticle(
       row.dek = autoDek;
     }
   }
+  if (!row.bylineName?.trim()) {
+    await db
+      .update(articles)
+      .set({ bylineName: staff.name, updatedAt: new Date() })
+      .where(eq(articles.id, id));
+    row.bylineName = staff.name;
+  }
 
   const missing = publishMissingFields(row);
   if (missing.length) {
     return {
       ok: false,
-      error: `Can't schedule yet — ${missing.join("; ")}.`,
+      error: `Can't schedule yet — add a ${missing.join(" and ")}.`,
     };
   }
 

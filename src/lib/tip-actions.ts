@@ -12,7 +12,7 @@ const submitSchema = z.object({
   contact: z.string().min(3).max(255),
   location: z.string().max(255).optional().or(z.literal("")),
   categorySlug: z.string().optional().or(z.literal("")),
-  message: z.string().min(30).max(10000),
+  message: z.string().min(10).max(10000),
   imageUrl: z.string().max(2000).optional().or(z.literal("")),
 });
 

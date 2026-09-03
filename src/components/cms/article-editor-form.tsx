@@ -294,7 +294,6 @@ export function ArticleEditorForm({
                 value={values.title}
                 onChange={(e) => set("title", e.target.value)}
                 required
-                minLength={8}
               />
             </label>
 
@@ -304,13 +303,9 @@ export function ArticleEditorForm({
                 value={values.dek}
                 onChange={(e) => set("dek", e.target.value)}
                 maxLength={280}
-                placeholder="One or two sentences under the headline"
+                placeholder="Optional — short line under the headline"
               />
             </label>
-            <p className="article-editor__hint">
-              Optional — if you leave this blank, we’ll use the start of the
-              story when you publish.
-            </p>
 
             <label>
               Location
@@ -322,7 +317,7 @@ export function ArticleEditorForm({
             </label>
 
             <div>
-              <p className="article-editor__label">Body</p>
+              <p className="article-editor__label">Story</p>
               <ArticleBodyEditor
                 initialHtml={values.bodyHtml}
                 onChangeHtml={(html) => set("bodyHtml", html)}
@@ -340,15 +335,16 @@ export function ArticleEditorForm({
             ) : null}
 
             <label>
-              Byline
+              Author name
               <input
                 value={values.byline}
                 onChange={(e) => set("byline", e.target.value)}
+                placeholder="Defaults to your name"
               />
             </label>
 
             <div className="article-editor__media-block">
-              <p className="article-editor__label">Hero image</p>
+              <p className="article-editor__label">Main photo</p>
               {values.heroImageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -380,42 +376,6 @@ export function ArticleEditorForm({
               </div>
             </div>
 
-            <label>
-              Video embed URL
-              <input
-                value={values.videoEmbedUrl}
-                onChange={(e) => set("videoEmbedUrl", e.target.value)}
-                placeholder="YouTube or Vimeo"
-              />
-            </label>
-
-            <div className="article-editor__media-block">
-              <p className="article-editor__label">Audio</p>
-              {values.audioUrl ? (
-                <p className="muted" style={{ margin: "0 0 0.5rem" }}>
-                  {values.audioUrl.split("/").pop()}
-                </p>
-              ) : null}
-              <div className="article-editor__actions">
-                <button
-                  type="button"
-                  className="btn btn--ghost"
-                  onClick={() => setPicker("audio")}
-                >
-                  Upload / library
-                </button>
-                {values.audioUrl ? (
-                  <button
-                    type="button"
-                    className="btn btn--ghost"
-                    onClick={() => set("audioUrl", "")}
-                  >
-                    Clear
-                  </button>
-                ) : null}
-              </div>
-            </div>
-
             {canPublish ? (
               <>
                 <label className="article-editor__check">
@@ -438,23 +398,59 @@ export function ArticleEditorForm({
               </>
             ) : null}
 
-            <label>
-              SEO title
-              <input
-                value={values.seoTitle}
-                onChange={(e) => set("seoTitle", e.target.value)}
-                placeholder="Defaults to title"
-              />
-            </label>
-
-            <label>
-              SEO description
-              <textarea
-                value={values.seoDescription}
-                onChange={(e) => set("seoDescription", e.target.value)}
-                rows={3}
-              />
-            </label>
+            <details className="article-editor__more">
+              <summary>More options</summary>
+              <label>
+                Video link
+                <input
+                  value={values.videoEmbedUrl}
+                  onChange={(e) => set("videoEmbedUrl", e.target.value)}
+                  placeholder="YouTube or Vimeo"
+                />
+              </label>
+              <div className="article-editor__media-block">
+                <p className="article-editor__label">Audio</p>
+                {values.audioUrl ? (
+                  <p className="muted" style={{ margin: "0 0 0.5rem" }}>
+                    {values.audioUrl.split("/").pop()}
+                  </p>
+                ) : null}
+                <div className="article-editor__actions">
+                  <button
+                    type="button"
+                    className="btn btn--ghost"
+                    onClick={() => setPicker("audio")}
+                  >
+                    Upload / library
+                  </button>
+                  {values.audioUrl ? (
+                    <button
+                      type="button"
+                      className="btn btn--ghost"
+                      onClick={() => set("audioUrl", "")}
+                    >
+                      Clear
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+              <label>
+                Search title (optional)
+                <input
+                  value={values.seoTitle}
+                  onChange={(e) => set("seoTitle", e.target.value)}
+                  placeholder="Defaults to title"
+                />
+              </label>
+              <label>
+                Search description (optional)
+                <textarea
+                  value={values.seoDescription}
+                  onChange={(e) => set("seoDescription", e.target.value)}
+                  rows={3}
+                />
+              </label>
+            </details>
 
             <div className="article-editor__actions">
               <button type="submit" className="btn" disabled={pending}>
