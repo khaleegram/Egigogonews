@@ -10,8 +10,8 @@ name: Cron publish
 
 on:
   schedule:
-    # Every 10 minutes (UTC). GitHub can delay a few minutes on free repos.
-    - cron: "*/10 * * * *"
+    # Once an hour. Every 10 minutes kept Neon awake and burned Free compute.
+    - cron: "0 * * * *"
   workflow_dispatch:
 
 concurrency:

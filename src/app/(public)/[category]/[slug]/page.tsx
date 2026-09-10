@@ -11,7 +11,7 @@ import { metadataForStory } from "@/lib/story-metadata";
 
 type Props = { params: Promise<{ category: string; slug: string }> };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 180;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category, slug } = await params;

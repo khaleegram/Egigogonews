@@ -1,7 +1,7 @@
 import { HomeHero } from "@/components/home/hero";
 import { SectionHeading } from "@/components/site/section-heading";
 import { StoryCard } from "@/components/site/story-card";
-import { SEED_CATEGORIES } from "@/lib/constants";
+import { PUBLIC_REVALIDATE_SECONDS, SEED_CATEGORIES } from "@/lib/constants";
 import {
   getFeaturedStories,
   listPublishedStories,
@@ -23,42 +23,28 @@ function toHero(s: Story) {
   };
 }
 
-export const dynamic = "force-dynamic";
+export const revalidate = PUBLIC_REVALIDATE_SECONDS;
 
 export default async function HomePage() {
-  const featured = (await getFeaturedStories(3)).map(toHero);
-  const featuredIds = featured.map((s) => s.id);
-  const latest = await listPublishedStories({
-    limit: 4,
-    excludeIds: featuredIds,
-    orderBy: "latest",
-  });
-  const trending = await listPublishedStories({
-    limit: 8,
-    orderBy: "trending",
-  });
-  const opinion = await listPublishedStories({
-    type: "opinion",
-    limit: 3,
-  });
-  const features = await listPublishedStories({
-    type: "feature",
-    limit: 2,
-  });
-  const investigations = await listPublishedStories({
-    type: "investigative",
-    limit: 2,
-  });
+  const [featuredRaw, pool, trending] = await Promise.all([
+    getFeaturedStories(3),
+    listPublishedStories({ limit: 50, orderBy: "latest" }),
+    listPublishedStories({ limit: 8, orderBy: "trending" }),
+  ]);
+  const featured = featuredRaw.map(toHero);
+  const featuredIds = new Set(featured.map((s) => s.id));
+  const rest = pool.filter((s) => !featuredIds.has(s.id));
+  const latest = rest.slice(0, 4);
+  const opinion = rest.filter((s) => s.type === "opinion").slice(0, 3);
+  const features = rest.filter((s) => s.type === "feature").slice(0, 2);
+  const investigations = rest
+    .filter((s) => s.type === "investigative")
+    .slice(0, 2);
 
-  const categoryRails = await Promise.all(
-    SEED_CATEGORIES.slice(0, 6).map(async (cat) => ({
-      cat,
-      items: await listPublishedStories({
-        categorySlug: cat.slug,
-        limit: 3,
-      }),
-    })),
-  );
+  const categoryRails = SEED_CATEGORIES.slice(0, 6).map((cat) => ({
+    cat,
+    items: rest.filter((s) => s.categorySlug === cat.slug).slice(0, 3),
+  }));
 
   return (
     <>

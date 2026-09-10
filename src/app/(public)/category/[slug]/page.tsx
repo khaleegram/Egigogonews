@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 
 type Props = { params: Promise<{ slug: string }> };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 180;
 
 export default async function CategoryPage({ params }: Props) {
   const { slug } = await params;

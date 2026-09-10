@@ -6,7 +6,7 @@ type Props = {
   searchParams: Promise<{ month?: string; category?: string }>;
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 180;
 
 export default async function ArchivePage({ searchParams }: Props) {
   const { month = "", category = "" } = await searchParams;
