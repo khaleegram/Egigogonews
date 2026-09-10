@@ -32,6 +32,22 @@ export function getDb(): Db {
   return _db;
 }
 
+export function isDbQuotaError(err: unknown) {
+  let current: unknown = err;
+  for (let i = 0; i < 4 && current; i++) {
+    const msg =
+      current instanceof Error ? current.message : String(current ?? "");
+    if (/exceeded the compute time quota|compute time quota/i.test(msg)) {
+      return true;
+    }
+    current =
+      current instanceof Error && "cause" in current
+        ? (current as { cause?: unknown }).cause
+        : undefined;
+  }
+  return false;
+}
+
 /** Neon free compute goes idle; first queries often fail until it wakes. */
 export async function withDbRetry<T>(
   fn: () => Promise<T>,
@@ -43,6 +59,7 @@ export async function withDbRetry<T>(
       return await fn();
     } catch (err) {
       last = err;
+      if (isDbQuotaError(err)) throw err;
       const msg = err instanceof Error ? err.message : String(err);
       const retryable =
         /fetch failed|ETIMEDOUT|ENETUNREACH|ECONNRESET|connecting to database|Failed query|timeout|Connection terminated/i.test(

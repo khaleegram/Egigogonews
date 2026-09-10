@@ -1,5 +1,5 @@
 import { and, desc, eq, ilike, notInArray, or, sql } from "drizzle-orm";
-import { getDb, withDbRetry } from "@/db";
+import { getDb, isDbQuotaError, withDbRetry } from "@/db";
 import { articles, breaking, categories, users } from "@/db/schema";
 import {
   articleHref,
@@ -41,6 +41,11 @@ function toStory(
 
 const published = eq(articles.status, "published");
 
+function logPublicDbError(scope: string, err: unknown) {
+  console.error(`[articles:${scope}]`, err);
+  return isDbQuotaError(err);
+}
+
 export async function listPublishedStories(opts?: {
   limit?: number;
   categorySlug?: string;
@@ -69,53 +74,68 @@ export async function listPublishedStories(opts?: {
       ? desc(articles.viewCount)
       : desc(articles.publishedAt);
 
-  const rows = await withDbRetry(() =>
-    db
-      .select({ article: articles, category: categories })
-      .from(articles)
-      .innerJoin(categories, eq(articles.categoryId, categories.id))
-      .where(and(...conditions))
-      .orderBy(order)
-      .limit(limit),
-  );
+  try {
+    const rows = await withDbRetry(() =>
+      db
+        .select({ article: articles, category: categories })
+        .from(articles)
+        .innerJoin(categories, eq(articles.categoryId, categories.id))
+        .where(and(...conditions))
+        .orderBy(order)
+        .limit(limit),
+    );
 
-  return rows.map((r) => toStory(r.article, r.category));
+    return rows.map((r) => toStory(r.article, r.category));
+  } catch (err) {
+    logPublicDbError("listPublishedStories", err);
+    return [];
+  }
 }
 
 export async function getFeaturedStories(limit = 3): Promise<Story[]> {
-  const db = getDb();
-  const rows = await withDbRetry(() =>
-    db
-      .select({ article: articles, category: categories })
-      .from(articles)
-      .innerJoin(categories, eq(articles.categoryId, categories.id))
-      .where(and(published, eq(articles.featured, true)))
-      .orderBy(desc(articles.publishedAt))
-      .limit(limit),
-  );
+  try {
+    const db = getDb();
+    const rows = await withDbRetry(() =>
+      db
+        .select({ article: articles, category: categories })
+        .from(articles)
+        .innerJoin(categories, eq(articles.categoryId, categories.id))
+        .where(and(published, eq(articles.featured, true)))
+        .orderBy(desc(articles.publishedAt))
+        .limit(limit),
+    );
 
-  if (rows.length > 0) {
-    return rows.map((r) => toStory(r.article, r.category));
+    if (rows.length > 0) {
+      return rows.map((r) => toStory(r.article, r.category));
+    }
+
+    return listPublishedStories({ limit, orderBy: "latest" });
+  } catch (err) {
+    logPublicDbError("getFeaturedStories", err);
+    return [];
   }
-
-  return listPublishedStories({ limit, orderBy: "latest" });
 }
 
 export async function getPublishedBySlug(
   categorySlug: string,
   slug: string,
 ): Promise<Story | null> {
-  const db = getDb();
-  const [row] = await db
-    .select({ article: articles, category: categories })
-    .from(articles)
-    .innerJoin(categories, eq(articles.categoryId, categories.id))
-    .where(
-      and(published, eq(categories.slug, categorySlug), eq(articles.slug, slug)),
-    )
-    .limit(1);
+  try {
+    const db = getDb();
+    const [row] = await db
+      .select({ article: articles, category: categories })
+      .from(articles)
+      .innerJoin(categories, eq(articles.categoryId, categories.id))
+      .where(
+        and(published, eq(categories.slug, categorySlug), eq(articles.slug, slug)),
+      )
+      .limit(1);
 
-  return row ? toStory(row.article, row.category) : null;
+    return row ? toStory(row.article, row.category) : null;
+  } catch (err) {
+    logPublicDbError("getPublishedBySlug", err);
+    return null;
+  }
 }
 
 export async function getArticleForCms(id: string) {
@@ -186,48 +206,63 @@ export async function getAuthorName(userId: string) {
 }
 
 export async function getActiveBreaking() {
-  return withDbRetry(async () => {
-    const db = getDb();
-    const [row] = await db
-      .select()
-      .from(breaking)
-      .where(eq(breaking.id, 1))
-      .limit(1);
-    if (!row || !row.active || !row.headline) return null;
-    return { headline: row.headline, href: row.url || "/" };
-  });
+  try {
+    return await withDbRetry(async () => {
+      const db = getDb();
+      const [row] = await db
+        .select()
+        .from(breaking)
+        .where(eq(breaking.id, 1))
+        .limit(1);
+      if (!row || !row.active || !row.headline) return null;
+      return { headline: row.headline, href: row.url || "/" };
+    });
+  } catch (err) {
+    logPublicDbError("getActiveBreaking", err);
+    return null;
+  }
 }
 
 export async function searchPublishedStories(query: string, limit = 40) {
   const q = query.trim();
   if (!q) return [] as Story[];
-  const db = getDb();
-  const pattern = `%${q}%`;
-  const rows = await db
-    .select({ article: articles, category: categories })
-    .from(articles)
-    .innerJoin(categories, eq(articles.categoryId, categories.id))
-    .where(
-      and(
-        published,
-        or(ilike(articles.title, pattern), ilike(articles.dek, pattern)),
-      ),
-    )
-    .orderBy(desc(articles.publishedAt))
-    .limit(limit);
-  return rows.map((r) => toStory(r.article, r.category));
+  try {
+    const db = getDb();
+    const pattern = `%${q}%`;
+    const rows = await db
+      .select({ article: articles, category: categories })
+      .from(articles)
+      .innerJoin(categories, eq(articles.categoryId, categories.id))
+      .where(
+        and(
+          published,
+          or(ilike(articles.title, pattern), ilike(articles.dek, pattern)),
+        ),
+      )
+      .orderBy(desc(articles.publishedAt))
+      .limit(limit);
+    return rows.map((r) => toStory(r.article, r.category));
+  } catch (err) {
+    logPublicDbError("searchPublishedStories", err);
+    return [] as Story[];
+  }
 }
 
 export async function getPublishedByTypeAndSlug(
   type: ArticleRow["type"],
   slug: string,
 ): Promise<Story | null> {
-  const db = getDb();
-  const [row] = await db
-    .select({ article: articles, category: categories })
-    .from(articles)
-    .innerJoin(categories, eq(articles.categoryId, categories.id))
-    .where(and(published, eq(articles.type, type), eq(articles.slug, slug)))
-    .limit(1);
-  return row ? toStory(row.article, row.category) : null;
+  try {
+    const db = getDb();
+    const [row] = await db
+      .select({ article: articles, category: categories })
+      .from(articles)
+      .innerJoin(categories, eq(articles.categoryId, categories.id))
+      .where(and(published, eq(articles.type, type), eq(articles.slug, slug)))
+      .limit(1);
+    return row ? toStory(row.article, row.category) : null;
+  } catch (err) {
+    logPublicDbError("getPublishedByTypeAndSlug", err);
+    return null;
+  }
 }
