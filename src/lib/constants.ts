@@ -43,9 +43,6 @@ export const RESERVED_PATH_SEGMENTS = new Set([
   "robots.txt",
 ]);
 
-/** Public pages: cache ~3 min so Google/readers don't wake Neon on every hit. */
-export const PUBLIC_REVALIDATE_SECONDS = 180;
-
 export const AD_SLOT_KEYS = [
   "home_top",
   "home_mid",
