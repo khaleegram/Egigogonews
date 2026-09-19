@@ -3,9 +3,8 @@ import { SiteFooter } from "@/components/site/footer";
 import { SiteHeader } from "@/components/site/header";
 import { PwaInstallBanner } from "@/components/site/pwa-install";
 import { getActiveBreaking } from "@/lib/articles";
-import { PUBLIC_REVALIDATE_SECONDS } from "@/lib/constants";
 
-export const revalidate = PUBLIC_REVALIDATE_SECONDS;
+export const revalidate = 180;
 
 export default async function PublicLayout({
   children,

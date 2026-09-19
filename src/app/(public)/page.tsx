@@ -1,7 +1,7 @@
 import { HomeHero } from "@/components/home/hero";
 import { SectionHeading } from "@/components/site/section-heading";
 import { StoryCard } from "@/components/site/story-card";
-import { PUBLIC_REVALIDATE_SECONDS, SEED_CATEGORIES } from "@/lib/constants";
+import { SEED_CATEGORIES } from "@/lib/constants";
 import {
   getFeaturedStories,
   listPublishedStories,
@@ -23,7 +23,7 @@ function toHero(s: Story) {
   };
 }
 
-export const revalidate = PUBLIC_REVALIDATE_SECONDS;
+export const revalidate = 180;
 
 export default async function HomePage() {
   const [featuredRaw, pool, trending] = await Promise.all([
