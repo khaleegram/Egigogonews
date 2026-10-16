@@ -5,7 +5,14 @@ import { notFound } from "next/navigation";
 
 type Props = { params: Promise<{ slug: string }> };
 
-export const revalidate = 180;
+// On-demand only: traffic must not regenerate pages (crawlers were waking the
+// DB); CMS/publish writes call revalidatePath() so content still updates instantly.
+export const revalidate = false;
+
+/** Required for ISR — without this every category view queries the DB. */
+export function generateStaticParams() {
+  return SEED_CATEGORIES.map((c) => ({ slug: c.slug }));
+}
 
 export default async function CategoryPage({ params }: Props) {
   const { slug } = await params;

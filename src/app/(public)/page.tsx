@@ -23,7 +23,9 @@ function toHero(s: Story) {
   };
 }
 
-export const revalidate = 180;
+// On-demand only: traffic must not regenerate pages (crawlers were waking the
+// DB); CMS/publish writes call revalidatePath() so content still updates instantly.
+export const revalidate = false;
 
 export default async function HomePage() {
   const [featuredRaw, pool, trending] = await Promise.all([

@@ -92,6 +92,43 @@ export async function listPublishedStories(opts?: {
   }
 }
 
+/**
+ * Build-time params for ISR. In this Next.js version a dynamic route is only
+ * cached when `generateStaticParams` exists — without it every request renders
+ * on the server and queries the database (which kept waking Neon).
+ */
+export async function listPublishedArticleParams(): Promise<
+  { category: string; slug: string }[]
+> {
+  try {
+    const db = getDb();
+    return await db
+      .select({ category: categories.slug, slug: articles.slug })
+      .from(articles)
+      .innerJoin(categories, eq(articles.categoryId, categories.id))
+      .where(published);
+  } catch (err) {
+    logPublicDbError("listPublishedArticleParams", err);
+    return [];
+  }
+}
+
+/** Build-time params for the type indexes (features / investigations / opinion). */
+export async function listPublishedSlugsByType(
+  type: ArticleRow["type"],
+): Promise<{ slug: string }[]> {
+  try {
+    const db = getDb();
+    return await db
+      .select({ slug: articles.slug })
+      .from(articles)
+      .where(and(published, eq(articles.type, type)));
+  } catch (err) {
+    logPublicDbError("listPublishedSlugsByType", err);
+    return [];
+  }
+}
+
 export async function getFeaturedStories(limit = 3): Promise<Story[]> {
   try {
     const db = getDb();

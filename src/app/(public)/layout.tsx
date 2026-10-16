@@ -4,7 +4,10 @@ import { SiteHeader } from "@/components/site/header";
 import { PwaInstallBanner } from "@/components/site/pwa-install";
 import { getActiveBreaking } from "@/lib/articles";
 
-export const revalidate = 180;
+// On-demand only: traffic must never regenerate a page — crawler hits were waking
+// Neon ~75x/day and burning its compute quota. CMS and publish writes call
+// revalidatePath(), which refreshes these pages instantly.
+export const revalidate = false;
 
 export default async function PublicLayout({
   children,

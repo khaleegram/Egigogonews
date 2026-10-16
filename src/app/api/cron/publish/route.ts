@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { and, eq, lte } from "drizzle-orm";
 import { getDb } from "@/db";
 import { articles, categories } from "@/db/schema";
-import { revalidatePath } from "next/cache";
+import { revalidateArticlePaths } from "@/lib/revalidate";
 import { articleHref } from "@/lib/story";
 import { sendPushToAll } from "@/lib/push";
 
@@ -40,9 +40,13 @@ export async function POST(req: Request) {
       })
       .where(eq(articles.id, row.article.id));
 
-    revalidatePath("/");
-    revalidatePath(`/category/${row.category.slug}`);
-    revalidatePath(articleHref(row.category.slug, row.article.slug));
+    // Public pages are on-demand only — publishing must invalidate every page
+    // this story appears on (homepage, category, archive, type index, CMS list).
+    revalidateArticlePaths(
+      row.category.slug,
+      row.article.slug,
+      row.article.type,
+    );
 
     try {
       await sendPushToAll({

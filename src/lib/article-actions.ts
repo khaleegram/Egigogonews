@@ -14,6 +14,7 @@ import {
 } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { publicActionError } from "@/lib/public-error";
+import { revalidateArticlePaths } from "@/lib/revalidate";
 import { articleHref } from "@/lib/story";
 
 function slugify(title: string) {
@@ -99,22 +100,6 @@ async function categoryIdForSlug(slug: string) {
     .where(eq(categories.slug, slug))
     .limit(1);
   return row?.id ?? null;
-}
-
-function revalidateArticlePaths(
-  categorySlug: string,
-  slug: string,
-  type: string,
-) {
-  revalidatePath("/");
-  revalidatePath(`/category/${categorySlug}`);
-  revalidatePath(articleHref(categorySlug, slug));
-  revalidatePath("/cms/articles");
-  if (type === "opinion") revalidatePath("/opinion");
-  if (type === "feature") revalidatePath("/features");
-  if (type === "investigative") revalidatePath("/investigations");
-  revalidatePath("/archive");
-  revalidatePath("/videos");
 }
 
 function publishMissingFields(article: {

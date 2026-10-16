@@ -21,11 +21,20 @@ Vercel Hobby · Neon · Cloudflare R2 · Resend · Drizzle · Auth.js · TipTap 
 
 ```bash
 cp .env.example .env.local
-# fill DATABASE_URL (Neon), AUTH_SECRET, SEED_ADMIN_*
+# fill AUTH_SECRET, SEED_ADMIN_* (DATABASE_URL defaults to the local container)
 
+npm run db:up      # local Postgres on 5433 (Docker)
 npm run db:push
 npm run db:seed
 npm run dev
+```
+
+Local development runs against the Docker database, **not** Neon — pointing dev
+at production wakes the metered Neon compute and burns its free quota (and
+inflates view counters).
+
+```bash
+npm run db:down    # stop the container when you're done
 ```
 
 Generate `AUTH_SECRET` with: `openssl rand -base64 32`

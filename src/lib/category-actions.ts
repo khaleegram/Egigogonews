@@ -88,7 +88,8 @@ export async function createCategory(raw: z.infer<typeof createSchema>) {
   }
 
   revalidatePath("/cms/categories");
-  revalidatePath("/");
+  // Category names appear in listings and on article pages.
+  revalidatePath("/", "layout");
   return { ok: true as const };
 }
 
@@ -158,7 +159,8 @@ export async function updateCategory(raw: z.infer<typeof updateSchema>) {
   }
 
   revalidatePath("/cms/categories");
-  revalidatePath("/");
+  // Category names appear in listings and on article pages.
+  revalidatePath("/", "layout");
   return { ok: true as const };
 }
 
@@ -169,6 +171,7 @@ export async function toggleCategoryActive(id: string, active: boolean) {
   const db = getDb();
   await db.update(categories).set({ active }).where(eq(categories.id, id));
   revalidatePath("/cms/categories");
-  revalidatePath("/");
+  // Category names appear in listings and on article pages.
+  revalidatePath("/", "layout");
   return { ok: true as const };
 }

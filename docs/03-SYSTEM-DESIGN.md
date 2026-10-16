@@ -136,13 +136,13 @@ Public header language select. Implementation: **Google Website Translator** (or
 
 ## 11. Environments
 
-`local` | `production`. Same schema. Local: Docker Postgres **or** Neon branch/dev URL; MinIO/local disk optional for media, or R2 from day one.
+`local` | `production`. Same schema. Local: Docker Postgres via `compose.yaml` (`npm run db:up`, port 5433) **or** Neon branch/dev URL; MinIO/local disk optional for media, or R2 from day one.
 
 `.env`:
 
 | Key | For |
 |---|---|
-| `DATABASE_URL` | Neon Postgres |
+| `DATABASE_URL` | Postgres — local Docker (dev) / Neon (prod) |
 | `AUTH_SECRET` / `SESSION_SECRET` | Auth.js / cookie signing |
 | `NEXT_PUBLIC_SITE_URL` | Canonicals, share, emails |
 | `BREVO_API_KEY` | Email (Brevo) |
@@ -157,5 +157,39 @@ Public header language select. Implementation: **Google Website Translator** (or
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Client subscribe |
 | `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` | First migrate seed |
 | `CRON_SECRET` | Protects `/api/cron/*` |
+
+## 12. Caching & Neon compute cost
+
+Neon bills **compute time while the database is awake**, not per query. Measured on this
+project (October 2026): the database was woken **~75 times a day**, ~8.6 minutes awake per
+wake (Neon suspends 5 minutes after the last query) — about **9.5 compute hours per day**.
+That exhausted the period allowance on 15 September, and was at **81% again by 16 October**.
+
+Rules that keep it asleep:
+
+1. **Public pages are on-demand only** — `export const revalidate = false` in
+   `app/(public)/layout.tsx` and every public page. Crawler and reader traffic must
+   never trigger a render.
+2. **A dynamic route (`[slug]`, `[category]`) is only cached when the file exports
+   `generateStaticParams`** (Next 16). Without it the route renders — and queries the
+   database — on every request. Keep those exports on article, category and type pages.
+3. **Every write path calls `revalidatePath`**, so content still appears instantly:
+   `src/lib/revalidate.ts` (`revalidateArticlePaths`) for stories, and
+   `revalidatePath("/", "layout")` for settings / categories / breaking (site-wide chrome).
+   The publish cron uses the same helper as the CMS.
+4. **Never point local development at the Neon database.** `npm run db:up` starts a local
+   Postgres from `compose.yaml` (port 5433). Local page loads, seeds and builds used to
+   wake production compute and inflate view counters.
+5. **Keep writes out of render paths** — the per-render `incrementArticleViews` write was
+   removed; it counted regenerations rather than readers.
+
+Check usage with the Neon CLI:
+
+```bash
+npx neonctl api "/projects/round-resonance-25616073/consumption"
+#   → compute_time_seconds used vs the project quota (settings.quota)
+npx neonctl api "/projects/round-resonance-25616073/operations?limit=1000"
+#   → start_compute / suspend_compute history = every wake and how long it stayed awake
+```
 
 Degrade honestly: no Brevo → mail actions disabled with reason; no VAPID → hide Enable notifications; no R2 → uploads fail with clear error (do not fake success).

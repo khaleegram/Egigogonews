@@ -78,9 +78,8 @@ export async function saveSiteSettings(raw: z.infer<typeof saveSchema>) {
   }
 
   revalidatePath("/cms/settings");
-  revalidatePath("/");
-  revalidatePath("/about");
-  revalidatePath("/contact");
+  // Site name, tagline and footer live in the public layout → refresh every page.
+  revalidatePath("/", "layout");
 
   return {
     ok: true as const,

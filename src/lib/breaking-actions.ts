@@ -85,7 +85,8 @@ export async function saveBreaking(raw: {
     }
   }
 
-  revalidatePath("/");
+  // The breaking bar renders in the public layout → refresh every public page.
+  revalidatePath("/", "layout");
   revalidatePath("/cms/breaking");
   return warning ? { ok: true, warning } : { ok: true };
 }
@@ -105,7 +106,8 @@ export async function clearBreaking(): Promise<BreakingActionResult> {
     })
     .where(eq(breaking.id, 1));
 
-  revalidatePath("/");
+  // The breaking bar renders in the public layout → refresh every public page.
+  revalidatePath("/", "layout");
   revalidatePath("/cms/breaking");
   return { ok: true };
 }
