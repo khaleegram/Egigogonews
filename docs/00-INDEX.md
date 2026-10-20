@@ -37,4 +37,4 @@ PRD (what) → SRS (rules) → screen spec (controls) → data model → impleme
 - Video is an embed URL. `/videos` is a filter over articles.
 - Ads are four fixed slots plus a sponsored flag. No ad server.
 - Our own visual identity. Reference sites informed features only.
-- **Stack (free-first):** Vercel Hobby + Neon + Cloudflare R2 + Brevo + Drizzle + Auth.js + TipTap + Web Push. External free cron for schedule/backup. See [03-SYSTEM-DESIGN.md](./03-SYSTEM-DESIGN.md).
+- **Stack (free-first):** Vercel Hobby + Neon + Cloudflare R2 + Brevo + Drizzle + Auth.js + TipTap + Web Push. External free cron for daily backups only. See [03-SYSTEM-DESIGN.md](./03-SYSTEM-DESIGN.md).

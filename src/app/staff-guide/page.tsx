@@ -175,7 +175,7 @@ export default function StaffGuidePage() {
                     <td>✓</td>
                   </tr>
                   <tr>
-                    <td>Publish / unpublish / schedule</td>
+                    <td>Publish / unpublish</td>
                     <td>✓</td>
                     <td>✓</td>
                     <td>—</td>
@@ -315,10 +315,6 @@ export default function StaffGuidePage() {
               <div>
                 <strong>In review</strong>
                 <span>Reporter submitted it. Editor decides.</span>
-              </div>
-              <div>
-                <strong>Scheduled</strong>
-                <span>Goes live at the date/time you set.</span>
               </div>
               <div>
                 <strong>Published</strong>

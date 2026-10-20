@@ -17,7 +17,7 @@ Code follows the docs. New idea → update the doc first.
 | Media | **Cloudflare R2** (10 GB free) |
 | Email | **Brevo** free |
 | Push | Web Push + VAPID |
-| Cron | External free cron → `/api/cron/publish` (+ `/api/cron/backup`) with `CRON_SECRET` |
+| Cron | External free cron → `/api/cron/backup` only (`CRON_SECRET`) |
 
 Public pages: server components. CMS mutations: server actions. Nothing else joins the stack without a doc change.
 
@@ -35,7 +35,6 @@ Details and env keys: [03-SYSTEM-DESIGN.md](./03-SYSTEM-DESIGN.md).
 
 ### 2. Article CMS
 - TipTap editor, list, preview, statuses, return-to-reporter
-- Schedule + `/api/cron/publish`
 - Image/audio upload to **R2**, media library
 - Role rules (reporter own only)
 
@@ -57,7 +56,7 @@ Details and env keys: [03-SYSTEM-DESIGN.md](./03-SYSTEM-DESIGN.md).
 - Forgot-password email, users, categories (block reserved slugs)
 - Settings, static pages
 - `/api/cron/backup` → R2; Settings shows `last_backup_at`; restore note tested once
-- Wire external cron jobs in the free cron provider
+- Wire the external backup cron in the free cron provider
 
 ## Do not build
 

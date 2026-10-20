@@ -11,7 +11,6 @@ import {
   publishArticleNow,
   returnToReporter,
   saveArticleDraft,
-  scheduleArticle,
   submitArticleForReview,
   unpublishArticle,
 } from "@/lib/article-actions";
@@ -82,7 +81,6 @@ export function ArticleEditorForm({
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
   const [picker, setPicker] = useState<"hero" | "audio" | "body" | null>(null);
-  const [scheduleAt, setScheduleAt] = useState("");
   const [returnNote, setReturnNote] = useState("");
   const [updateBody, setUpdateBody] = useState("");
   const insertImageRef = useRef<((url: string, alt?: string) => void) | null>(
@@ -183,27 +181,6 @@ export function ArticleEditorForm({
         return;
       }
       flash("Published");
-      router.refresh();
-    });
-  }
-
-  function onSchedule() {
-    if (!values.id || !scheduleAt) return;
-    startTransition(async () => {
-      const saved = await saveArticleDraft(payload());
-      if (!saved.ok) {
-        setError(saved.error);
-        return;
-      }
-      const result = await scheduleArticle(
-        values.id!,
-        new Date(scheduleAt).toISOString(),
-      );
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
-      flash("Scheduled");
       router.refresh();
     });
   }
@@ -509,23 +486,6 @@ export function ArticleEditorForm({
 
             {mode === "edit" && values.id && canPublish ? (
               <div className="article-editor__workflow">
-                <label>
-                  Schedule publish
-                  <input
-                    type="datetime-local"
-                    value={scheduleAt}
-                    onChange={(e) => setScheduleAt(e.target.value)}
-                  />
-                </label>
-                <button
-                  type="button"
-                  className="btn btn--ghost"
-                  disabled={pending || !scheduleAt}
-                  onClick={onSchedule}
-                >
-                  Schedule
-                </button>
-
                 {values.status === "in_review" ? (
                   <>
                     <label>

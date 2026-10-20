@@ -15,7 +15,6 @@
 | Media | **Cloudflare R2** free (10 GB, egress free) |
 | Email | **Brevo** free (~300 emails/day) |
 | Push | Web Push + VAPID (`web-push` lib + `/sw.js`) |
-| Scheduled publish | HTTP endpoint + **GitHub Actions** cron (free; not Vercel Cron) |
 
 No separate API service. No Redis. No Clerk. No Vercel Blob.
 
@@ -30,8 +29,7 @@ Reader / staff browser
         ├── Brevo (reset, confirm, newsletter, staff alerts)
         └── Web Push (breaking only)
         
- External GitHub Actions cron ──POST──► /api/cron/publish  (CRON_SECRET)
- External GitHub Actions cron ──POST──► /api/cron/backup   (optional; dumps to R2)
+ External GitHub Actions cron ──POST──► /api/cron/backup   (CRON_SECRET; optional; dumps to R2)
 ```
 
 ## 2. Route map
@@ -77,7 +75,6 @@ Reader / staff browser
 
 | Path | Purpose |
 |---|---|
-| `/api/cron/publish` | Publish due `scheduled` rows. Header/query `CRON_SECRET`. |
 | `/api/cron/backup` | `pg_dump` (or Neon logical dump) → upload `.sql.gz` to R2. Updates `site_settings.last_backup_at`. |
 
 Middleware: `/cms/*` requires session. Role checked per page as in SRS.
@@ -89,8 +86,7 @@ Middleware: `/cms/*` requires session. Role checked per page as in SRS.
 
 1. Reporter save → `articles` row `draft`.
 2. Submit → `in_review` + notifications + Brevo `staff_alert` if configured.
-3. Editor publish → `published`, `published_at`, `revalidatePath` for `/`, article URL, category, section index, `/videos` if embed, `/sitemap.xml`.
-4. External cron hits `/api/cron/publish` when `publish_at <= now` → same as (3).
+3. Editor publish → `published`, `published_at`, `revalidatePath` for `/`, article URL, category, section index, `/videos` if embed, `/sitemap.xml`. Publishing is immediate — there is no scheduler and no publish cron.
 
 Breaking activate → update singleton, revalidate layout, send Web Push.
 
@@ -176,7 +172,7 @@ Rules that keep it asleep:
 3. **Every write path calls `revalidatePath`**, so content still appears instantly:
    `src/lib/revalidate.ts` (`revalidateArticlePaths`) for stories, and
    `revalidatePath("/", "layout")` for settings / categories / breaking (site-wide chrome).
-   The publish cron uses the same helper as the CMS.
+   Publishing is immediate — there is no publish cron.
 4. **Never point local development at the Neon database.** `npm run db:up` starts a local
    Postgres from `compose.yaml` (port 5433). Local page loads, seeds and builds used to
    wake production compute and inflate view counters.

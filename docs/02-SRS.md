@@ -7,7 +7,7 @@ Normative. Implementation must match. If a screen spec and this conflict, update
 | Role | Can |
 |---|---|
 | **reporter** | Create/edit **own** drafts. Submit for review. Upload media for own stories. Cannot publish. Sees only own articles. |
-| **editor** | Everything a reporter can, plus: see all articles, edit any, publish, unpublish, schedule, set breaking, manage updates, process tips, moderate comments, feature/pin on home. Cannot manage users or site settings. |
+| **editor** | Everything a reporter can, plus: see all articles, edit any, publish, unpublish, set breaking, manage updates, process tips, moderate comments, feature/pin on home. Cannot manage users or site settings. |
 | **admin** | Everything an editor can, plus: users (create/disable), categories, ad slots, sponsored flag, newsletter send, site settings. |
 
 One person, one role. No custom permission matrix.
@@ -35,19 +35,18 @@ Same fields. Different public section URLs:
 
 ## 4. Article statuses
 
-`draft` → `in_review` → `published` | `scheduled`  
+`draft` → `in_review` → `published`  
 From published: `unpublished` (hidden from public, still in CMS).
 
 | Action | Who | From | To |
 |---|---|---|---|
 | Save draft | reporter (own), editor, admin | any except published unless editor | draft (if not yet published) |
 | Submit for review | reporter (own) | draft | in_review |
-| Publish now | editor, admin | draft, in_review, scheduled, unpublished | published (`publishedAt` = now) |
-| Schedule | editor, admin | draft, in_review | scheduled (`publishAt` future) |
+| Publish now | editor, admin | draft, in_review, unpublished | published (`publishedAt` = now) |
 | Unpublish | editor, admin | published | unpublished |
 | Return to reporter | editor, admin | in_review | draft + optional note |
 
-Scheduled: external free cron POSTs `/api/cron/publish` (guarded by `CRON_SECRET`) about once a minute; publishes when `publish_at <= now`. Do not depend on Vercel Cron on Hobby.
+Publishing is immediate: the editor's publish action sets `published` and revalidates the pages. There is no scheduled publishing and no publish cron.
 
 ## 5. Article fields (required vs optional)
 

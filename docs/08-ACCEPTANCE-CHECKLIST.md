@@ -10,7 +10,7 @@ Tick on **production**, not on a laptop. Every box is required — this is the r
 - [ ] Editor cannot publish without dek, body, category, hero image, hero alt, byline (inline list shows what is missing)
 - [ ] Editor publishes; story is live at its category URL within a minute
 - [ ] Slug is locked after first publish
-- [ ] Editor schedules a story; cron publishes it on time
+- [ ] Editor publishes a story; it goes live immediately (no scheduled publishing)
 - [ ] Editor unpublishes; public URL 404s, story still in CMS
 - [ ] **Save** edits body in place; **Add update** appends a timestamped update and leaves the body alone
 - [ ] Opinion, feature, and investigative stories land on `/opinion`, `/features`, `/investigations`

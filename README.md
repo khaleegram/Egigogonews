@@ -14,7 +14,7 @@ Vercel Hobby · Neon · Cloudflare R2 · Resend · Drizzle · Auth.js · TipTap 
 - Full Drizzle schema (`src/db/schema.ts`) + seed
 - Auth.js credentials (`src/lib/auth.ts`) + `/cms` middleware
 - Public + CMS **route stubs** (plain text)
-- Cron stubs: `/api/cron/publish`, `/api/cron/backup`
+- Cron stub: `/api/cron/backup` (publishing is immediate — no publish cron)
 - `.env.example`
 
 ## Local
