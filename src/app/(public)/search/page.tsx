@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import { StoryCard } from "@/components/site/story-card";
 import { searchPublishedStories } from "@/lib/articles";
 
 type Props = { searchParams: Promise<{ q?: string }> };
+
+// Search renders per query and reads the database — keep crawlers out of it.
+export const metadata: Metadata = {
+  title: "Search",
+  robots: { index: false, follow: false },
+};
 
 export default async function SearchPage({ searchParams }: Props) {
   const { q = "" } = await searchParams;

@@ -19,6 +19,7 @@ export default function robots(): MetadataRoute.Robots {
           "/forgot-password",
           "/reset-password",
           "/api/",
+          "/search",
           "/newsletter/",
           "/offline.html",
           "/sw.js",
@@ -27,7 +28,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "GPTBot",
         allow: "/",
-        disallow: ["/cms/", "/api/", "/login"],
+        disallow: ["/cms/", "/api/", "/search", "/login"],
       },
     ],
     sitemap: `${base}/sitemap.xml`,
